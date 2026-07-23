@@ -1,6 +1,6 @@
 # SPEC 01 — MVP Visual de Arcade Vault
 
-> **Status:** Aprobado
+> **Status:** Implementado
 > **Depends on:** —
 > **Date:** 2026-07-23
 > **Objective:** Implementar las 5 pantallas del MVP de Arcade Vault como rutas Next.js 15 con datos mock, animación simulada en el reproductor y auth por localStorage.
