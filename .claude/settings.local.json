@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc *)",
+      "Bash(not exist *)",
+      "Bash(New-Item -ItemType Directory -Force \"C:\\\\Users\\\\User\\\\Documents\\\\ClaudeCode\\\\05-arcade-vault\\\\app\\\\juego\\\\[id]\")",
+      "Bash(Out-Null)"
+    ]
+  }
+}
