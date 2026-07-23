@@ -6,7 +6,10 @@
       "Bash(New-Item -ItemType Directory -Force \"C:\\\\Users\\\\User\\\\Documents\\\\ClaudeCode\\\\05-arcade-vault\\\\app\\\\juego\\\\[id]\")",
       "Bash(Out-Null)",
       "Bash(New-Item -ItemType Directory -Path \"C:\\\\Users\\\\User\\\\Documents\\\\ClaudeCode\\\\05-arcade-vault\\\\app\\\\juegos\" -Force)",
-      "Bash(Write-Host \"Directory created\")"
+      "Bash(Write-Host \"Directory created\")",
+      "Bash(git status *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
     ]
   }
 }
