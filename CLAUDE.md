@@ -6,16 +6,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Arcade Vault** — an online platform to play games and compete for the highest score. Built with Next.js 15 App Router, React 19, TypeScript (strict), and Tailwind CSS v4.
 
-## Commands
 
-```bash
-npm run dev      # dev server with Turbopack
-npm run build    # production build with Turbopack
-npm run start    # production server
-npm run lint     # ESLint
-```
 
 No test runner is configured yet.
+
+## Skills
+Use siempre /front-design para diserña la interfaz del usuario.
 
 ## Architecture
 
