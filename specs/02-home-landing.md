@@ -1,6 +1,6 @@
 # SPEC 02 — Home Page (Landing)
 
-> **Status:** Aprobado
+> **Status:** Implementado
 > **Depends on:** 01-mvp-visual
 > **Date:** 2026-07-23
 > **Objective:** Implementar la página de inicio (landing) de Arcade Vault en `/`,
