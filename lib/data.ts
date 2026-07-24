@@ -141,6 +141,17 @@ export const GAMES: Game[] = [
     best: 10000,
     plays: "0",
   },
+  {
+    id: "snake",
+    title: "SNAKE",
+    short: "Come frutas y crece sin morder tu cola.",
+    long: "Una serpiente hambrienta recorre la cuadrícula devorando frutas exóticas. Come más para crecer y sumar puntos, pero jamás toques los bordes ni tu propia cola.",
+    cat: "ARCADE",
+    cover: "cover-snake",
+    color: "green",
+    best: 10000,
+    plays: "0",
+  },
 ];
 
 export const CATS = ["TODOS", "ARCADE", "PUZZLE", "SHOOTER", "VERSUS"] as const;
