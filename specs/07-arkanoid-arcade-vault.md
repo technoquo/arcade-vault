@@ -1,6 +1,6 @@
 # SPEC 07 — Integración de ARKANOID en Arcade Vault
 
-> **Status:** Draft
+> **Status:** Aprobado
 > **Depends on:** 05-games-leaderboard
 > **Date:** 2026-07-24
 > **Objective:** Integrar el juego ARKANOID (slug: `arkanoid`) como página jugable en Arcade Vault con leaderboard Top 12 conectado a Supabase.
