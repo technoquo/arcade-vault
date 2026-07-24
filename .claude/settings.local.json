@@ -16,11 +16,12 @@
       "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(d.get\\('version','?'\\)\\)\")",
       "Bash(node -e \"const p = require\\('./node_modules/prettier/package.json'\\); console.log\\(p.version\\)\" --prefix \"C:\\\\Users\\\\User\\\\Documents\\\\ClaudeCode\\\\05-arcade-vault\")",
       "Bash(powershell.exe -ExecutionPolicy Bypass -File \".claude\\hooks\\format-file.ps1\")",
-      "Bash(powershell -Command \"jq -e '.hooks.PostToolUse[] | select\\(.matcher == \\\\\"Write|Edit\\\\\"\\) | .hooks[] | select\\(.type == \\\\\"command\\\\\"\\) | .command' .claude/settings.json\")"
+      "Bash(powershell -Command \"jq -e '.hooks.PostToolUse[] | select\\(.matcher == \\\\\"Write|Edit\\\\\"\\) | .hooks[] | select\\(.type == \\\\\"command\\\\\"\\) | .command' .claude/settings.json\")",
+      "Bash(git checkout *)"
     ]
   },
+  "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "supabase"
-  ],
-  "enableAllProjectMcpServers": true
+  ]
 }
