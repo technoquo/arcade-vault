@@ -1,18 +1,62 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { GAMES, seededScores } from "@/lib/data";
-import { useUser } from "@/context/UserContext";
+import { createClient } from "@/lib/supabase/client";
+
+interface Game {
+  id: string;
+  slug: string;
+  name: string;
+}
+
+interface ScoreEntry {
+  rank: number;
+  player_name: string;
+  score: number;
+  created_at: string;
+}
+
+function formatDate(iso: string) {
+  const d = new Date(iso);
+  return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
+}
 
 export default function SalonPage() {
-  const { user } = useUser();
-  const [tab, setTab] = useState(GAMES[0].id);
+  const [games, setGames] = useState<Game[]>([]);
+  const [tab, setTab] = useState<string | null>(null);
+  const [rows, setRows] = useState<ScoreEntry[]>([]);
+  const [loadingGames, setLoadingGames] = useState(true);
+  const [loadingScores, setLoadingScores] = useState(false);
 
-  const rows = useMemo(() => seededScores(tab.length * 23 + 7, 12), [tab]);
-  const game = GAMES.find((g) => g.id === tab)!;
-  const youRank = user ? Math.floor(8 + (tab.length % 4)) : null;
-  const youScore = user ? (rows[5]?.score ?? 9999) - 2400 : null;
+  useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from("games")
+      .select("id, slug, name")
+      .order("name")
+      .then(({ data }) => {
+        const list: Game[] = data ?? [];
+        setGames(list);
+        if (list.length > 0) setTab(list[0].slug);
+        setLoadingGames(false);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (!tab) return;
+    setLoadingScores(true);
+    fetch(`/api/scores?game_slug=${tab}`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data: ScoreEntry[]) => setRows(data))
+      .finally(() => setLoadingScores(false));
+  }, [tab]);
+
+  const currentGame = games.find((g) => g.slug === tab);
+  const loading = loadingGames || loadingScores;
+
+  const podium = rows.slice(0, 3);
+  const hasPodium = podium.length >= 3;
 
   return (
     <div className="av-hall fade-in">
@@ -23,101 +67,145 @@ export default function SalonPage() {
         </p>
       </div>
 
-      <div className="hall-tabs">
-        {GAMES.map((g) => (
-          <button
-            key={g.id}
-            className={"chip" + (tab === g.id ? " active" : "")}
-            onClick={() => setTab(g.id)}
-          >
-            {g.title}
-          </button>
-        ))}
-      </div>
-
-      <div className="podium">
-        {/* Silver — 2nd */}
-        <div className="podium-slot silver">
-          <div className="rank-num">02</div>
-          <div className="name">{rows[1].name}</div>
-          <div className="score">{rows[1].score.toLocaleString("es-ES")}</div>
-          <div className="date">{rows[1].date}</div>
+      {loadingGames ? (
+        <div
+          style={{
+            textAlign: "center",
+            padding: 80,
+            fontFamily: "var(--pixel)",
+            fontSize: 10,
+            color: "var(--ink-faint)",
+          }}
+        >
+          CARGANDO…
         </div>
-
-        {/* Gold — 1st */}
-        <div className="podium-slot gold">
-          <div className="pixel" style={{ fontSize: 9, color: "var(--gold)", letterSpacing: "0.18em" }}>
-            CAMPEÓN
-          </div>
-          <div className="rank-num" style={{ fontSize: 36, marginTop: 4 }}>01</div>
-          <div className="name">{rows[0].name}</div>
-          <div className="score" style={{ fontSize: 20 }}>
-            {rows[0].score.toLocaleString("es-ES")}
-          </div>
-          <div className="date">{rows[0].date}</div>
+      ) : games.length === 0 ? (
+        <div
+          style={{
+            textAlign: "center",
+            padding: 80,
+            fontFamily: "var(--pixel)",
+            fontSize: 10,
+            color: "var(--magenta)",
+          }}
+        >
+          NO HAY JUEGOS DISPONIBLES
         </div>
-
-        {/* Bronze — 3rd */}
-        <div className="podium-slot bronze">
-          <div className="rank-num">03</div>
-          <div className="name">{rows[2].name}</div>
-          <div className="score">{rows[2].score.toLocaleString("es-ES")}</div>
-          <div className="date">{rows[2].date}</div>
-        </div>
-      </div>
-
-      <div className="hall-table">
-        <div className="th">
-          <div>RANGO</div>
-          <div>JUGADOR</div>
-          <div>PUNTUACIÓN</div>
-          <div>FECHA</div>
-        </div>
-
-        {rows.map((r, i) => (
-          <div
-            key={r.name + i}
-            className={
-              "tr" +
-              (i === 0 ? " top1" : i === 1 ? " top2" : i === 2 ? " top3" : "")
-            }
-            style={{ animationDelay: `${i * 50}ms` }}
-          >
-            <div className="rk">#{String(r.rank).padStart(2, "0")}</div>
-            <div className="pl">{r.name}</div>
-            <div className="sc">{r.score.toLocaleString("es-ES")}</div>
-            <div className="dt">{r.date}</div>
-          </div>
-        ))}
-
-        {user && youRank !== null && youScore !== null && (
-          <>
-            <div className="tr you-label">▸ TU MEJOR MARCA EN {game.title}</div>
-            <div
-              className="tr you"
-              style={{ animationDelay: `${rows.length * 50 + 50}ms` }}
-            >
-              <div className="rk" style={{ color: "var(--yellow)" }}>
-                #{String(youRank).padStart(2, "0")}
-              </div>
-              <div className="pl" style={{ color: "var(--yellow)" }}>
-                {user.name}
-              </div>
-              <div
-                className="sc"
-                style={{ color: "var(--yellow)", textShadow: "0 0 6px rgba(245,255,0,0.5)" }}
+      ) : (
+        <>
+          <div className="hall-tabs">
+            {games.map((g) => (
+              <button
+                key={g.slug}
+                className={"chip" + (tab === g.slug ? " active" : "")}
+                onClick={() => setTab(g.slug)}
               >
-                {Math.max(youScore, 999).toLocaleString("es-ES")}
-              </div>
-              <div className="dt">11/05/2026</div>
+                {g.name.toUpperCase()}
+              </button>
+            ))}
+          </div>
+
+          {loading ? (
+            <div
+              style={{
+                textAlign: "center",
+                padding: 60,
+                fontFamily: "var(--pixel)",
+                fontSize: 10,
+                color: "var(--ink-faint)",
+              }}
+            >
+              <span className="spinner" />
             </div>
-          </>
-        )}
-      </div>
+          ) : rows.length === 0 ? (
+            <div
+              style={{
+                textAlign: "center",
+                padding: 60,
+                fontFamily: "var(--pixel)",
+                fontSize: 10,
+                color: "var(--ink-faint)",
+                letterSpacing: "0.14em",
+              }}
+            >
+              AÚN NO HAY SCORES PARA {currentGame?.name.toUpperCase()}.<br />
+              <span
+                style={{ fontSize: 9, color: "var(--ink-faint)", marginTop: 10, display: "block" }}
+              >
+                ¡SÉ EL PRIMERO EN ENTRAR AL SALÓN!
+              </span>
+            </div>
+          ) : (
+            <>
+              {hasPodium && (
+                <div className="podium">
+                  {/* Silver — 2nd */}
+                  <div className="podium-slot silver">
+                    <div className="rank-num">02</div>
+                    <div className="name">{podium[1].player_name}</div>
+                    <div className="score">{podium[1].score.toLocaleString("es-ES")}</div>
+                    <div className="date">{formatDate(podium[1].created_at)}</div>
+                  </div>
+
+                  {/* Gold — 1st */}
+                  <div className="podium-slot gold">
+                    <div
+                      className="pixel"
+                      style={{ fontSize: 9, color: "var(--gold)", letterSpacing: "0.18em" }}
+                    >
+                      CAMPEÓN
+                    </div>
+                    <div className="rank-num" style={{ fontSize: 36, marginTop: 4 }}>
+                      01
+                    </div>
+                    <div className="name">{podium[0].player_name}</div>
+                    <div className="score" style={{ fontSize: 20 }}>
+                      {podium[0].score.toLocaleString("es-ES")}
+                    </div>
+                    <div className="date">{formatDate(podium[0].created_at)}</div>
+                  </div>
+
+                  {/* Bronze — 3rd */}
+                  <div className="podium-slot bronze">
+                    <div className="rank-num">03</div>
+                    <div className="name">{podium[2].player_name}</div>
+                    <div className="score">{podium[2].score.toLocaleString("es-ES")}</div>
+                    <div className="date">{formatDate(podium[2].created_at)}</div>
+                  </div>
+                </div>
+              )}
+
+              <div className="hall-table">
+                <div className="th">
+                  <div>RANGO</div>
+                  <div>JUGADOR</div>
+                  <div>PUNTUACIÓN</div>
+                  <div>FECHA</div>
+                </div>
+
+                {rows.map((r, i) => (
+                  <div
+                    key={r.rank}
+                    className={
+                      "tr" + (i === 0 ? " top1" : i === 1 ? " top2" : i === 2 ? " top3" : "")
+                    }
+                    style={{ animationDelay: `${i * 50}ms` }}
+                  >
+                    <div className="rk">#{String(r.rank).padStart(2, "0")}</div>
+                    <div className="pl">{r.player_name}</div>
+                    <div className="sc">{r.score.toLocaleString("es-ES")}</div>
+                    <div className="dt">{formatDate(r.created_at)}</div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </>
+      )}
 
       <div style={{ textAlign: "center", marginTop: 32 }}>
-        <Link href="/">
-          <button className="btn lg">VOLVER A LA BIBLIOTECA</button>
+        <Link href="/juegos">
+          <button className="btn lg">IR A JUGAR</button>
         </Link>
       </div>
     </div>

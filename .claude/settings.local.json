@@ -23,7 +23,8 @@
       "Bash(git commit *)",
       "Bash(git merge --no-ff spec-04-supabase-auth -m ' *)",
       "Bash(git stash *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "mcp__supabase__apply_migration"
     ]
   },
   "enableAllProjectMcpServers": true,
