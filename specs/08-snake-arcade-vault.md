@@ -1,6 +1,6 @@
 # SPEC 08 — Integración de SNAKE en Arcade Vault
 
-> **Status:** Draft
+> **Status:** Implementado
 > **Depends on:** 05-games-leaderboard
 > **Date:** 2026-07-24
 > **Objective:** Integrar el juego SNAKE (slug: `snake`) como página jugable en Arcade Vault con leaderboard Top 12 conectado a Supabase, creando el game.js desde cero con sprites de frutas.
