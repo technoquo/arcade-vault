@@ -18,7 +18,12 @@
       "Bash(powershell.exe -ExecutionPolicy Bypass -File \".claude\\hooks\\format-file.ps1\")",
       "Bash(powershell -Command \"jq -e '.hooks.PostToolUse[] | select\\(.matcher == \\\\\"Write|Edit\\\\\"\\) | .hooks[] | select\\(.type == \\\\\"command\\\\\"\\) | .command' .claude/settings.json\")",
       "Bash(git checkout *)",
-      "mcp__supabase__get_publishable_keys"
+      "mcp__supabase__get_publishable_keys",
+      "Skill(frontend-design)",
+      "Bash(git commit *)",
+      "Bash(git merge --no-ff spec-04-supabase-auth -m ' *)",
+      "Bash(git stash *)",
+      "Bash(git push *)"
     ]
   },
   "enableAllProjectMcpServers": true,
