@@ -201,6 +201,7 @@ function update(delta) {
       state.lives -= 1;
       if (state.lives === 0) {
         state.phase = 'gameover';
+        if (typeof window.onGameOver === 'function') window.onGameOver(state.score);
       } else {
         ball.attached = true;
         state.phase = 'waiting';
