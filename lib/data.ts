@@ -130,6 +130,17 @@ export const GAMES: Game[] = [
     best: 10000,
     plays: "0",
   },
+  {
+    id: "arkanoid",
+    title: "ARKANOID",
+    short: "Rompe los bloques antes de perder todas las vidas.",
+    long: "Paleta, pelota y muros de bloques cromáticos. Destruye cada fila antes de que se te acaben las vidas.",
+    cat: "ARCADE",
+    cover: "cover-arkanoid",
+    color: "magenta",
+    best: 10000,
+    plays: "0",
+  },
 ];
 
 export const CATS = ["TODOS", "ARCADE", "PUZZLE", "SHOOTER", "VERSUS"] as const;
