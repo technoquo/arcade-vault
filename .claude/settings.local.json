@@ -29,7 +29,8 @@
       "Bash(Copy-Item \"C:\\\\Users\\\\User\\\\Documents\\\\ClaudeCode\\\\05-arcade-vault\\\\references\\\\started-games\\\\03-tetris\\\\style.css\" \"C:\\\\Users\\\\User\\\\Documents\\\\ClaudeCode\\\\05-arcade-vault\\\\public\\\\tetris\\\\style.css\")",
       "mcp__supabase__execute_sql",
       "Bash(Get-ChildItem -Recurse \"C:\\\\Users\\\\User\\\\Documents\\\\ClaudeCode\\\\05-arcade-vault\\\\references\\\\started-games\\\\04-arkanoid\")",
-      "Bash(Select-Object FullName, Length)"
+      "Bash(Select-Object FullName, Length)",
+      "mcp__supabase__list_tables"
     ]
   },
   "enableAllProjectMcpServers": true,
