@@ -4,6 +4,7 @@ import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { GAMES } from "@/lib/data";
 import { useUser } from "@/context/UserContext";
+import AsteroidsGame from "@/components/AsteroidsGame";
 
 export default function JugarPage({
   params,
@@ -90,13 +91,17 @@ export default function JugarPage({
 
       <div className="crt">
         <div className="crt-screen">
-          <div className="game-arena">
-            <div className="grid-floor" />
-            <div className="enemy e1" />
-            <div className="enemy e2" />
-            <div className="enemy e3" />
-            <div className="player-ship" />
-          </div>
+          {id === "rocas" ? (
+            <AsteroidsGame />
+          ) : (
+            <div className="game-arena">
+              <div className="grid-floor" />
+              <div className="enemy e1" />
+              <div className="enemy e2" />
+              <div className="enemy e3" />
+              <div className="player-ship" />
+            </div>
+          )}
 
           {paused && (
             <div
