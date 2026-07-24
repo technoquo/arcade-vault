@@ -2,25 +2,62 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "@/context/UserContext";
+import { createClient } from "@/lib/supabase/client";
 
 export default function AuthPage() {
   const router = useRouter();
-  const { login } = useUser();
+  const supabase = createClient();
 
   const [tab, setTab] = useState<"in" | "up">("in");
-  const [user, setUser] = useState("");
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault();
-    login({ name: (user || "PLAYER1").toUpperCase().slice(0, 10) });
-    router.push("/");
+  const handleTab = (next: "in" | "up") => {
+    setTab(next);
+    setError(null);
+    setSuccess(null);
   };
 
-  const playAsGuest = () => {
-    router.push("/");
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(null);
+
+    if (tab === "up" && pass !== confirm) {
+      setError("Las contraseñas no coinciden.");
+      return;
+    }
+
+    setLoading(true);
+
+    if (tab === "in") {
+      const { error: err } = await supabase.auth.signInWithPassword({ email, password: pass });
+      if (err) {
+        setError(err.message);
+      } else {
+        router.push("/juegos");
+      }
+    } else {
+      const { error: err } = await supabase.auth.signUp({ email, password: pass });
+      if (err) {
+        setError(err.message);
+      } else {
+        setSuccess("Revisa tu correo para confirmar tu cuenta.");
+      }
+    }
+
+    setLoading(false);
+  };
+
+  const signInWithOAuth = async (provider: "google" | "github") => {
+    await supabase.auth.signInWithOAuth({
+      provider,
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
+    });
   };
 
   return (
@@ -31,42 +68,38 @@ export default function AuthPage() {
           <h2 className="neon-cyan">ARCADE VAULT</h2>
           <div
             className="mono"
-            style={{ fontSize: 11, color: "var(--ink-faint)", letterSpacing: "0.16em", marginTop: 6 }}
+            style={{
+              fontSize: 11,
+              color: "var(--ink-faint)",
+              letterSpacing: "0.16em",
+              marginTop: 6,
+            }}
           >
             ACCESO AL SISTEMA · v2.6
           </div>
         </div>
 
         <div className="auth-tabs">
-          <button className={tab === "in" ? "on" : ""} onClick={() => setTab("in")}>
+          <button className={tab === "in" ? "on" : ""} onClick={() => handleTab("in")}>
             INICIAR SESIÓN
           </button>
-          <button className={tab === "up" ? "on" : ""} onClick={() => setTab("up")}>
+          <button className={tab === "up" ? "on" : ""} onClick={() => handleTab("up")}>
             CREAR CUENTA
           </button>
         </div>
 
         <form onSubmit={submit}>
           <div className="field">
-            <label>Usuario</label>
+            <label>Correo electrónico</label>
             <input
-              value={user}
-              onChange={(e) => setUser(e.target.value)}
-              placeholder="px_kai"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="jugador@vault.gg"
+              required
+              autoComplete="email"
             />
           </div>
-
-          {tab === "up" && (
-            <div className="field slide-in">
-              <label>Correo electrónico</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="jugador@vault.gg"
-              />
-            </div>
-          )}
 
           <div className="field">
             <label>Contraseña</label>
@@ -75,26 +108,76 @@ export default function AuthPage() {
               value={pass}
               onChange={(e) => setPass(e.target.value)}
               placeholder="••••••••"
+              required
+              autoComplete={tab === "in" ? "current-password" : "new-password"}
             />
           </div>
 
-          <button className="btn lg" type="submit" style={{ width: "100%", marginTop: 8 }}>
-            {tab === "in" ? "ENTRAR AL VAULT" : "CREAR Y JUGAR"}
+          {tab === "up" && (
+            <div className="field slide-in">
+              <label>Confirmar contraseña</label>
+              <input
+                type="password"
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+                placeholder="••••••••"
+                required
+                autoComplete="new-password"
+              />
+            </div>
+          )}
+
+          {error && (
+            <p
+              style={{
+                margin: "0 0 12px",
+                fontSize: 12,
+                color: "var(--magenta)",
+                letterSpacing: "0.06em",
+              }}
+            >
+              ▲ {error}
+            </p>
+          )}
+
+          {success && (
+            <p
+              style={{
+                margin: "0 0 12px",
+                fontSize: 12,
+                color: "var(--green)",
+                textShadow: "0 0 8px rgba(0,255,136,0.5)",
+                letterSpacing: "0.06em",
+              }}
+            >
+              ✓ {success}
+            </p>
+          )}
+
+          <button
+            className="btn lg"
+            type="submit"
+            style={{ width: "100%", marginTop: 8 }}
+            disabled={loading}
+          >
+            {loading ? (
+              <span className="spinner" />
+            ) : tab === "in" ? (
+              "ENTRAR AL VAULT"
+            ) : (
+              "CREAR Y JUGAR"
+            )}
           </button>
         </form>
 
-        <button
-          className="btn ghost"
-          style={{ width: "100%", marginTop: 10 }}
-          onClick={playAsGuest}
-        >
-          JUGAR COMO INVITADO
-        </button>
-
         <div className="auth-divider">O CONTINÚA CON</div>
         <div className="social">
-          <button className="btn ghost" type="button">◆&nbsp; GOOGLE</button>
-          <button className="btn ghost" type="button">▣&nbsp; GITHUB</button>
+          <button className="btn ghost" type="button" onClick={() => signInWithOAuth("google")}>
+            ◆&nbsp; GOOGLE
+          </button>
+          <button className="btn ghost" type="button" onClick={() => signInWithOAuth("github")}>
+            ▣&nbsp; GITHUB
+          </button>
         </div>
 
         <div
