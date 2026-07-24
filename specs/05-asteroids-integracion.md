@@ -1,6 +1,6 @@
 # SPEC 05 — Asteroids: Integración en Arcade Vault
 
-> **Status:** Aprobado
+> **Status:** Implementado
 > **Depends on:** 04-supabase-auth
 > **Date:** 2026-07-24
 > **Objective:** Integrar el juego Asteroids existente en Arcade Vault como
