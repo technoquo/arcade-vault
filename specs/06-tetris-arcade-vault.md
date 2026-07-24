@@ -1,6 +1,6 @@
 # SPEC 06 — Integración de TETRIS en Arcade Vault
 
-> **Status:** Aprobado
+> **Status:** Implementado
 > **Depends on:** 05-games-leaderboard
 > **Date:** 2026-07-24
 > **Objective:** Integrar el juego TETRIS (slug: `tetris`) como página jugable en Arcade Vault con leaderboard Top 12 conectado a Supabase.

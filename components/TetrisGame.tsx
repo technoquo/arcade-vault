@@ -8,12 +8,23 @@ export default function TetrisGame({ onGameOver }: { onGameOver?: (score: number
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = "/tetris/style.css";
-    document.head.appendChild(link);
+    let styleEl: HTMLStyleElement | null = null;
+
+    fetch("/tetris/style.css")
+      .then((r) => r.text())
+      .then((css) => {
+        // Strip rules that pollute the Arcade Vault global layout
+        const safe = css
+          .replace(/\*\s*,\s*\*::before\s*,\s*\*::after\s*\{[\s\S]*?\}/g, "")
+          .replace(/body(?:\.[a-z-]+)?\s*\{[\s\S]*?\}/g, "");
+
+        styleEl = document.createElement("style");
+        styleEl.textContent = safe;
+        document.head.appendChild(styleEl);
+      });
+
     return () => {
-      if (document.head.contains(link)) document.head.removeChild(link);
+      if (styleEl && document.head.contains(styleEl)) document.head.removeChild(styleEl);
     };
   }, []);
 
@@ -29,10 +40,11 @@ export default function TetrisGame({ onGameOver }: { onGameOver?: (score: number
       const containerW = container.clientWidth;
       const containerH = container.clientHeight;
       const scale = Math.min(containerW / GAME_W, containerH / GAME_H);
+      wrapper.style.position = "absolute";
       wrapper.style.transform = `scale(${scale})`;
       wrapper.style.transformOrigin = "top left";
-      wrapper.style.marginLeft = `${(containerW - GAME_W * scale) / 2}px`;
-      wrapper.style.marginTop = `${(containerH - GAME_H * scale) / 2}px`;
+      wrapper.style.left = `${(containerW - GAME_W * scale) / 2}px`;
+      wrapper.style.top = `${(containerH - GAME_H * scale) / 2}px`;
     };
 
     const observer = new ResizeObserver(updateScale);

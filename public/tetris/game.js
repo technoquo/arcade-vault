@@ -1,3 +1,4 @@
+(function () {
 'use strict';
 
 const COLS = 10;
@@ -475,6 +476,8 @@ function endGame() {
 
   showScreen('gameover-screen');
 
+  if (typeof window.onGameOver === 'function') window.onGameOver(score);
+
   if (isTop) {
     setTimeout(() => playerNameInput.focus(), 50);
   }
@@ -566,7 +569,7 @@ document.addEventListener('keydown', e => {
     return;
   }
 
-  if (paused || gameOver) return;
+  if (paused || gameOver || !gameStarted) return;
   switch (e.code) {
     case 'ArrowLeft':
       if (!collide(current.shape, current.x - 1, current.y)) current.x--;
@@ -617,3 +620,4 @@ startLevelSelect.addEventListener('change', () => {
 });
 
 showStartScreen();
+})();
