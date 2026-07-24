@@ -18,5 +18,9 @@
       "Bash(powershell.exe -ExecutionPolicy Bypass -File \".claude\\hooks\\format-file.ps1\")",
       "Bash(powershell -Command \"jq -e '.hooks.PostToolUse[] | select\\(.matcher == \\\\\"Write|Edit\\\\\"\\) | .hooks[] | select\\(.type == \\\\\"command\\\\\"\\) | .command' .claude/settings.json\")"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "supabase"
+  ],
+  "enableAllProjectMcpServers": true
 }
