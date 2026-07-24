@@ -6,7 +6,13 @@ import { useEffect, useRef } from "react";
 const CANVAS_W = 560;
 const CANVAS_H = 560;
 
-export default function SnakeGame({ onGameOver }: { onGameOver?: (score: number) => void }) {
+export default function SnakeGame({
+  onGameOver,
+  resetKey,
+}: {
+  onGameOver?: (score: number) => void;
+  resetKey?: number;
+}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -37,6 +43,11 @@ export default function SnakeGame({ onGameOver }: { onGameOver?: (score: number)
       delete (window as unknown as Record<string, unknown>).onGameOver;
     };
   }, [onGameOver]);
+
+  useEffect(() => {
+    if (!resetKey) return;
+    (window as unknown as { snakeReset?: () => void }).snakeReset?.();
+  }, [resetKey]);
 
   return (
     <div

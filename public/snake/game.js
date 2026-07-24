@@ -44,6 +44,7 @@
     resetState();
     document.addEventListener("keydown", handleKey);
     requestAnimationFrame(drawLoop);
+    window.snakeReset = resetState;
   }
 
   function resetState() {

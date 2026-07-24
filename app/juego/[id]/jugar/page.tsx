@@ -38,6 +38,7 @@ export default function JugarPage({
   const [level, setLevel] = useState(1);
   const [paused, setPaused] = useState(false);
   const [over, setOver] = useState(false);
+  const [restartKey, setRestartKey] = useState(0);
   const [name, setName] = useState("");
   const [userId, setUserId] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -95,6 +96,7 @@ export default function JugarPage({
     setOver(false);
     setSaved(false);
     setSaveError(null);
+    setRestartKey((k) => k + 1);
   };
 
   const handleSave = async () => {
@@ -168,7 +170,7 @@ export default function JugarPage({
             ) : id === "arkanoid" ? (
               <ArkanoidGame onGameOver={(s) => { setScore(s); setOver(true); }} />
             ) : id === "snake" ? (
-              <SnakeGame onGameOver={(s) => { setScore(s); setOver(true); }} />
+              <SnakeGame onGameOver={(s) => { setScore(s); setOver(true); }} resetKey={restartKey} />
             ) : (
               <div className="game-arena">
                 <div className="grid-floor" />
