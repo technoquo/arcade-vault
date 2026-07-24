@@ -7,6 +7,7 @@ import { useUser } from "@/context/UserContext";
 import AsteroidsGame from "@/components/AsteroidsGame";
 import TetrisGame from "@/components/TetrisGame";
 import ArkanoidGame from "@/components/ArkanoidGame";
+import SnakeGame from "@/components/SnakeGame";
 import { createClient } from "@/lib/supabase/client";
 
 interface LeaderboardEntry {
@@ -166,6 +167,8 @@ export default function JugarPage({
               <TetrisGame onGameOver={(s) => { setScore(s); setOver(true); }} />
             ) : id === "arkanoid" ? (
               <ArkanoidGame onGameOver={(s) => { setScore(s); setOver(true); }} />
+            ) : id === "snake" ? (
+              <SnakeGame onGameOver={(s) => { setScore(s); setOver(true); }} />
             ) : (
               <div className="game-arena">
                 <div className="grid-floor" />
