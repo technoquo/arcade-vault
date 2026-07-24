@@ -1,6 +1,6 @@
 # SPEC 05 — Games Table & Leaderboard
 
-> **Status:** Aprobado
+> **Status:** Implementado
 > **Depends on:** 04-supabase-auth
 > **Date:** 2026-07-24
 > **Objective:** Implementar las tablas `games` y `scores` en Supabase, la página
