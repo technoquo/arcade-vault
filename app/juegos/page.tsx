@@ -1,106 +1,37 @@
-"use client";
-
-import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { CATS, GAMES } from "@/lib/data";
-import type { Game } from "@/lib/data";
+import { createClient } from "@/lib/supabase/server";
 
-function GameCard({ game }: { game: Game }) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  const onMove = (e: React.MouseEvent) => {
-    const el = ref.current;
-    if (!el) return;
-    const r = el.getBoundingClientRect();
-    const px = (e.clientX - r.left) / r.width - 0.5;
-    const py = (e.clientY - r.top) / r.height - 0.5;
-    el.style.transform = `translateY(-6px) rotateX(${-py * 6}deg) rotateY(${px * 8}deg)`;
-  };
-
-  const onLeave = () => {
-    if (ref.current) ref.current.style.transform = "";
-  };
-
-  const btnClass =
-    game.color === "magenta"
-      ? "btn magenta"
-      : game.color === "yellow"
-      ? "btn yellow"
-      : "btn";
-
-  return (
-    <Link href={`/juego/${game.id}`} style={{ display: "contents" }}>
-      <div ref={ref} className="card" onMouseMove={onMove} onMouseLeave={onLeave}>
-        <div className="cover">
-          <div className={`cover-bg ${game.cover}`} />
-          <div className="label">{game.cat}</div>
-        </div>
-        <div className="meta">
-          <div className="title">{game.title}</div>
-          <div className="desc">{game.short}</div>
-          <div className="row">
-            <div className="score-badge">
-              <span>MEJOR PUNTUACIÓN</span>
-              <b>{game.best.toLocaleString("es-ES")}</b>
-            </div>
-            <button className={btnClass}>JUGAR</button>
-          </div>
-        </div>
-      </div>
-    </Link>
-  );
+interface Game {
+  id: string;
+  slug: string;
+  name: string;
+  description: string | null;
 }
 
-export default function Biblioteca() {
-  const [q, setQ] = useState("");
-  const [cat, setCat] = useState("TODOS");
+const COVER_CLASS: Record<string, string> = {
+  rocas: "cover-rocas",
+};
 
-  const filtered = useMemo(
-    () =>
-      GAMES.filter(
-        (g) =>
-          (cat === "TODOS" || g.cat === cat) &&
-          g.title.toLowerCase().includes(q.toLowerCase())
-      ),
-    [q, cat]
-  );
+export default async function Juegos() {
+  const supabase = await createClient();
+  const { data: games } = await supabase
+    .from("games")
+    .select("id, slug, name, description")
+    .order("name");
+
+  const list: Game[] = games ?? [];
 
   return (
     <div className="fade-in">
       <section className="av-hero">
         <h1 className="flicker">ARCADE VAULT</h1>
         <div className="sub">
-          INSERTA UNA MONEDA PARA JUGAR <span className="blink">_</span>
+          ELIGE TU JUEGO Y COMPITE <span className="blink">_</span>
         </div>
       </section>
 
-      <div className="av-filters">
-        <div className="av-search">
-          <span className="ico">⌕</span>
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Buscar un juego por nombre…"
-          />
-        </div>
-        <div className="av-chips">
-          {CATS.map((c) => (
-            <button
-              key={c}
-              className={"chip" + (cat === c ? " active" : "")}
-              onClick={() => setCat(c)}
-            >
-              {c}
-            </button>
-          ))}
-        </div>
-      </div>
-
       <div className="av-grid">
-        {filtered.map((g) => (
-          <GameCard key={g.id} game={g} />
-        ))}
-        {filtered.length === 0 && (
+        {list.length === 0 && (
           <div
             style={{
               gridColumn: "1 / -1",
@@ -113,11 +44,30 @@ export default function Biblioteca() {
               className="pixel"
               style={{ fontSize: 14, color: "var(--magenta)", marginBottom: 12 }}
             >
-              NO HAY RESULTADOS
+              NO HAY JUEGOS DISPONIBLES
             </div>
-            <div>Intenta otra búsqueda o categoría.</div>
+            <div>Vuelve pronto.</div>
           </div>
         )}
+
+        {list.map((game) => (
+          <div key={game.id} className="card">
+            <div className="cover">
+              <div className={`cover-bg ${COVER_CLASS[game.slug] ?? "cover-invaders"}`} />
+              <div className="label">SHOOTER</div>
+            </div>
+            <div className="meta">
+              <div className="title">{game.name.toUpperCase()}</div>
+              <div className="desc">{game.description}</div>
+              <div className="row">
+                <div style={{ flex: 1 }} />
+                <Link href={`/juego/${game.slug}/jugar`}>
+                  <button className="btn yellow">JUGAR</button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
