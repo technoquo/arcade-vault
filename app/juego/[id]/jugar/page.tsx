@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { GAMES } from "@/lib/data";
 import { useUser } from "@/context/UserContext";
 import AsteroidsGame from "@/components/AsteroidsGame";
+import { createClient } from "@/lib/supabase/client";
 
 interface LeaderboardEntry {
   rank: number;
@@ -34,8 +35,11 @@ export default function JugarPage({
   const [level, setLevel] = useState(1);
   const [paused, setPaused] = useState(false);
   const [over, setOver] = useState(false);
-  const [name, setName] = useState(user ? user.name : "INVITADO");
+  const [name, setName] = useState("");
+  const [userId, setUserId] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [lbLoading, setLbLoading] = useState(true);
@@ -51,6 +55,16 @@ export default function JugarPage({
   }, [id]);
 
   useEffect(() => { fetchLeaderboard(); }, [fetchLeaderboard]);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data }) => {
+      const email = data.session?.user?.email;
+      const uid = data.session?.user?.id ?? null;
+      setUserId(uid);
+      if (email) setName(email.split("@")[0].toUpperCase().slice(0, 10));
+    });
+  }, []);
 
   useEffect(() => {
     if (!game) router.replace("/");
@@ -77,11 +91,36 @@ export default function JugarPage({
     setPaused(false);
     setOver(false);
     setSaved(false);
+    setSaveError(null);
   };
 
-  const handleSave = () => {
-    saveScore({ game: id, score, name, at: Date.now() });
-    setSaved(true);
+  const handleSave = async () => {
+    if (!name.trim()) return;
+    setSaving(true);
+    setSaveError(null);
+    try {
+      const res = await fetch("/api/scores", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          game_slug: id,
+          player_name: name.trim(),
+          score,
+          ...(userId ? { user_id: userId } : {}),
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        setSaveError(data.error ?? "Error al guardar el score.");
+        return;
+      }
+      setSaved(true);
+      await fetchLeaderboard();
+    } catch {
+      setSaveError("Error de red. Intenta de nuevo.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (!game) return null;
@@ -353,18 +392,37 @@ export default function JugarPage({
             <div className="final">{score.toLocaleString("es-ES")}</div>
 
             {!saved ? (
-              <div className="input-row">
-                <input
-                  value={name}
-                  onChange={(e) =>
-                    setName(e.target.value.toUpperCase().slice(0, 10))
-                  }
-                  placeholder="TUS INICIALES"
-                />
-                <button className="btn yellow" onClick={handleSave}>
-                  GUARDAR PUNTUACIÓN
-                </button>
-              </div>
+              <>
+                <div className="input-row">
+                  <input
+                    value={name}
+                    onChange={(e) =>
+                      setName(e.target.value.toUpperCase().slice(0, 10))
+                    }
+                    placeholder="TUS INICIALES"
+                    disabled={saving}
+                  />
+                  <button
+                    className="btn yellow"
+                    onClick={handleSave}
+                    disabled={saving || !name.trim()}
+                  >
+                    {saving ? <span className="spinner" /> : "GUARDAR"}
+                  </button>
+                </div>
+                {saveError && (
+                  <div
+                    style={{
+                      fontSize: 11,
+                      color: "var(--magenta)",
+                      letterSpacing: "0.08em",
+                      marginTop: 6,
+                    }}
+                  >
+                    ▲ {saveError}
+                  </div>
+                )}
+              </>
             ) : (
               <div className="toast-saved">▸ PUNTUACIÓN GUARDADA_</div>
             )}
