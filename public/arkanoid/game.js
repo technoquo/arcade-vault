@@ -51,8 +51,8 @@ const toast = {
   timer: 0,
 };
 
-const sndBounce = new Audio('assets/sounds/ball-bounce.mp3');
-const sndBreak  = new Audio('assets/sounds/break-sound.mp3');
+const sndBounce = new Audio('/arkanoid/assets/sounds/ball-bounce.mp3');
+const sndBreak  = new Audio('/arkanoid/assets/sounds/break-sound.mp3');
 
 function playSound(snd) {
   snd.currentTime = 0;
