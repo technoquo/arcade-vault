@@ -1,6 +1,6 @@
 # SPEC 04 — Supabase Auth
 
-> **Status:** Aprobado
+> **Status:** Implementado
 > **Depends on:** 03-about-contact-resend
 > **Date:** 2026-07-24
 > **Objective:** Integrar Supabase Auth en Arcade Vault para permitir
