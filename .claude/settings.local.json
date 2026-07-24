@@ -24,7 +24,10 @@
       "Bash(git merge --no-ff spec-04-supabase-auth -m ' *)",
       "Bash(git stash *)",
       "Bash(git push *)",
-      "mcp__supabase__apply_migration"
+      "mcp__supabase__apply_migration",
+      "Bash(Copy-Item \"C:\\\\Users\\\\User\\\\Documents\\\\ClaudeCode\\\\05-arcade-vault\\\\references\\\\started-games\\\\03-tetris\\\\game.js\" \"C:\\\\Users\\\\User\\\\Documents\\\\ClaudeCode\\\\05-arcade-vault\\\\public\\\\tetris\\\\game.js\")",
+      "Bash(Copy-Item \"C:\\\\Users\\\\User\\\\Documents\\\\ClaudeCode\\\\05-arcade-vault\\\\references\\\\started-games\\\\03-tetris\\\\style.css\" \"C:\\\\Users\\\\User\\\\Documents\\\\ClaudeCode\\\\05-arcade-vault\\\\public\\\\tetris\\\\style.css\")",
+      "mcp__supabase__execute_sql"
     ]
   },
   "enableAllProjectMcpServers": true,

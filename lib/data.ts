@@ -119,14 +119,40 @@ export const GAMES: Game[] = [
     best: 24,
     plays: "4.2K",
   },
+  {
+    id: "tetris",
+    title: "TETRIS",
+    short: "Completa líneas antes de que el tablero se llene.",
+    long: "Tetris es un videojuego de rompecabezas creado en 1984 por el ingeniero soviético Alexey Pajitnov. Es uno de los videojuegos más famosos y populares de la historia.",
+    cat: "ARCADE",
+    cover: "cover-tetris",
+    color: "green",
+    best: 10000,
+    plays: "0",
+  },
 ];
 
 export const CATS = ["TODOS", "ARCADE", "PUZZLE", "SHOOTER", "VERSUS"] as const;
 
 const PLAYERS = [
-  "PX_KAI", "NEONFOX", "Z3R0COOL", "M00NRYU", "VAULT_07", "GLITCHA",
-  "ATARI_KID", "CYBER_LU", "MAGENTA88", "SCANLINE", "BIT_LORD", "ARKADYA",
-  "DROID_X", "RGB_QUEEN", "PIXEL_DAD", "RETROVIRA", "VECTORX", "JOY_STK",
+  "PX_KAI",
+  "NEONFOX",
+  "Z3R0COOL",
+  "M00NRYU",
+  "VAULT_07",
+  "GLITCHA",
+  "ATARI_KID",
+  "CYBER_LU",
+  "MAGENTA88",
+  "SCANLINE",
+  "BIT_LORD",
+  "ARKADYA",
+  "DROID_X",
+  "RGB_QUEEN",
+  "PIXEL_DAD",
+  "RETROVIRA",
+  "VECTORX",
+  "JOY_STK",
 ];
 
 export function seededScores(seed: number, count = 12): ScoreEntry[] {
