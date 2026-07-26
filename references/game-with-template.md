@@ -13,13 +13,13 @@ Convenciones:
 | Slug       | Componente      | Skins actuales             | Falta                | Estado                  |
 | ---------- | --------------- | -------------------------- | -------------------- | ----------------------- |
 | `tetris`   | `TetrisGame`    | retro, neon, pastel, pixel | clasico              | Parcial                 |
-| `rocas`    | `AsteroidsGame` | —                          | neon, retro, clasico | Pendiente               |
+| `rocas`    | `AsteroidsGame` | clasico, retro, neon       | —                    | Implementado            |
 | `arkanoid` | `ArkanoidGame`  | —                          | neon, retro, clasico | Pendiente (spritesheet) |
 | `snake`    | `SnakeGame`     | —                          | neon, retro, clasico | Pendiente               |
 
 ## Implementados (3 skins estándar completas)
 
-_Ninguno todavía._
+- [x] `rocas` (Asteroids) — tiene `clasico`, `retro`, `neon` · Auditado 2026-07-26
 
 ## Parcialmente implementados
 
@@ -31,7 +31,6 @@ _Ninguno todavía._
 
 ## Pendientes de diseño
 
-- [ ] `rocas` (Asteroids) — 0 skins · **Falta:** `neon`, `retro`, `clasico` · Auditado 2026-07-26
 - [ ] `arkanoid` — 0 skins · **Falta:** `neon`, `retro`, `clasico` (nota: usa spritesheet, puede requerir CSS filters o repintar sprites) · Auditado 2026-07-26
 - [ ] `snake` — 0 skins · **Falta:** `neon`, `retro`, `clasico` · Auditado 2026-07-26
 
