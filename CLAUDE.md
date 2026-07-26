@@ -18,6 +18,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - Usa siempre `/frontend-design` para diseñar la interfaz del usuario.
 - Nuevas features: empieza con `/spec` y luego implementa con `/spec-impl`.
+- Integrar un juego canvas ya diseñado: `/add-game <slug>`.
+
+## Subagentes
+
+- **`game-planner`** (`.claude/agents/game-planner.md`) — planifica y decide qué juego retro encaja con la plataforma. Analiza gaps del catálogo (categoría, color, mecánica) y propone ideas nuevas. Mantiene memoria persistente de todo lo propuesto en `references/game-suggestions-todo.md` (aprobados / propuestos / descartados / implementados) para no repetirse entre invocaciones. Interactivo por defecto: pregunta categoría, cantidad, color y restricciones antes de proponer. Invocalo cuando necesites ideas de próximos juegos; después de aprobar una propuesta, seguí con `/add-game <slug>`.
 
 ## Architecture
 

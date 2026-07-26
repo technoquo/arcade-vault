@@ -33,7 +33,12 @@
       "mcp__supabase__list_tables",
       "Bash(mkdir -p \"C:\\\\Users\\\\User\\\\Documents\\\\ClaudeCode\\\\05-arcade-vault\\\\public\\\\snake\\\\snake-assets\")",
       "Bash(cp \"C:\\\\Users\\\\User\\\\Documents\\\\ClaudeCode\\\\05-arcade-vault\\\\references\\\\source-assets\\\\snake-assets\\\\fruits.png\" \"C:\\\\Users\\\\User\\\\Documents\\\\ClaudeCode\\\\05-arcade-vault\\\\public\\\\snake\\\\snake-assets\\\\fruits.png\")",
-      "Bash(cp \"C:\\\\Users\\\\User\\\\Documents\\\\ClaudeCode\\\\05-arcade-vault\\\\references\\\\source-assets\\\\snake-assets\\\\sprites.js\" \"C:\\\\Users\\\\User\\\\Documents\\\\ClaudeCode\\\\05-arcade-vault\\\\public\\\\snake\\\\snake-assets\\\\sprites.js\")"
+      "Bash(cp \"C:\\\\Users\\\\User\\\\Documents\\\\ClaudeCode\\\\05-arcade-vault\\\\references\\\\source-assets\\\\snake-assets\\\\sprites.js\" \"C:\\\\Users\\\\User\\\\Documents\\\\ClaudeCode\\\\05-arcade-vault\\\\public\\\\snake\\\\snake-assets\\\\sprites.js\")",
+      "PowerShell(cmd /c dir \"C:\\\\Users\\\\User\\\\.claude\\\\\" /b)",
+      "PowerShell(cmd /c dir \"C:\\\\Users\\\\User\\\\Documents\\\\ClaudeCode\\\\05-arcade-vault\\\\.claude\\\\\" /b /s)",
+      "PowerShell(cmd /c dir \"C:\\\\Users\\\\User\\\\.claude\\\\projects\\\\\" /b)",
+      "PowerShell(cmd /c dir \"C:\\\\Users\\\\User\\\\Documents\\\\ClaudeCode\\\\05-arcade-vault\\\\specs\\\\\" /b)",
+      "Bash(grep -E \"\\\\.\\(tsx|ts\\)$\")"
     ]
   },
   "enableAllProjectMcpServers": true,
