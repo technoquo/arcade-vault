@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signOut } from "@/app/auth/actions";
 
 interface Props {
@@ -21,6 +21,13 @@ export default function NavClient({ userEmail }: Props) {
 
   const close = () => setOpen(false);
   const initial = userEmail ? userEmail[0].toUpperCase() : null;
+
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
 
   return (
     <>
@@ -96,9 +103,26 @@ export default function NavClient({ userEmail }: Props) {
       </nav>
 
       <div className={"av-mobile-backdrop" + (open ? " open" : "")} onClick={close} />
-      <aside className={"av-mobile-panel" + (open ? " open" : "")}>
-        <div className="pixel neon-cyan" style={{ fontSize: 11, marginBottom: 16 }}>
-          MENÚ
+      <aside className={"av-mobile-panel" + (open ? " open" : "")} aria-hidden={!open}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: 16,
+          }}
+        >
+          <div className="pixel neon-cyan" style={{ fontSize: 11 }}>
+            MENÚ
+          </div>
+          <button
+            className="btn ghost"
+            onClick={close}
+            aria-label="Cerrar menú"
+            style={{ padding: "6px 10px", fontSize: 16, lineHeight: 1 }}
+          >
+            ×
+          </button>
         </div>
         <Link href="/" className={isInicio ? "active" : ""} onClick={close}>
           Inicio
