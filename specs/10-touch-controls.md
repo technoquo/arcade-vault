@@ -1,6 +1,6 @@
 # SPEC 10 — Controles Táctiles en Móvil
 
-> **Status:** Aprobado
+> **Status:** Implementado
 > **Depends on:** 09-mobile-responsive-ui
 > **Date:** 2026-07-26
 > **Objective:** Agregar botones táctiles on-screen para los cuatro juegos en móvil (≤ 639 px),

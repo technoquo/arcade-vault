@@ -2812,6 +2812,10 @@ a {
 }
 
 @media (max-width: 639px) {
+  .leaderboard {
+    display: none;
+  }
+
   .touch-controls {
     display: flex;
     justify-content: center;
