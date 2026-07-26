@@ -38,7 +38,10 @@
       "PowerShell(cmd /c dir \"C:\\\\Users\\\\User\\\\Documents\\\\ClaudeCode\\\\05-arcade-vault\\\\.claude\\\\\" /b /s)",
       "PowerShell(cmd /c dir \"C:\\\\Users\\\\User\\\\.claude\\\\projects\\\\\" /b)",
       "PowerShell(cmd /c dir \"C:\\\\Users\\\\User\\\\Documents\\\\ClaudeCode\\\\05-arcade-vault\\\\specs\\\\\" /b)",
-      "Bash(grep -E \"\\\\.\\(tsx|ts\\)$\")"
+      "Bash(grep -E \"\\\\.\\(tsx|ts\\)$\")",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\User\\\\Documents\\\\ClaudeCode\\\\05-arcade-vault\" -Force)",
+      "Bash(Select-Object Name, PSIsContainer)",
+      "Bash(Format-Table)"
     ]
   },
   "enableAllProjectMcpServers": true,

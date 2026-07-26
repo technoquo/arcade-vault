@@ -23,6 +23,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Subagentes
 
 - **`game-planner`** (`.claude/agents/game-planner.md`) — planifica y decide qué juego retro encaja con la plataforma. Analiza gaps del catálogo (categoría, color, mecánica) y propone ideas nuevas. Mantiene memoria persistente de todo lo propuesto en `references/game-suggestions-todo.md` (aprobados / propuestos / descartados / implementados) para no repetirse entre invocaciones. Interactivo por defecto: pregunta categoría, cantidad, color y restricciones antes de proponer. Invocalo cuando necesites ideas de próximos juegos; después de aprobar una propuesta, seguí con `/add-game <slug>`.
+- **`game-jam`** (`.claude/agents/game-jam.md`) — a partir de un tema creativo (ej: "cyberpunk", "ninjas espaciales"), diseña un juego retro completo y genera 3 specs en `specs/game-jam/[slug]/` (`01-concept.md`, `02-design.md`, `03-integration.md`). Interactivo: pregunta tema, categoría, color, mecánica y restricciones; presenta un resumen y espera aprobación antes de escribir. Comparte memoria con `game-planner` vía `references/game-suggestions-todo.md` (marca el juego como PROPUESTO). Invocalo cuando quieras un juego nuevo desde cero con enfoque temático; después seguí con `/add-game <slug>` o `/spec-impl` sobre el spec `03-integration.md`.
 
 ## Architecture
 

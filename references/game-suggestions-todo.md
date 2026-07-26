@@ -5,7 +5,7 @@
 
 ## Aprobados (por implementar)
 
-- [ ] `duelo-tanques` — VERSUS · magenta · "Dos tanques, un laberinto, un solo superviviente." · Propuesto 2026-07-26 · Aprobado 2026-07-26 · **Razón:** Aporta apuntado 2D + proyectiles con rebote + terreno destructible; mecánica VERSUS distinta al reflejo 1D de `duelo-pixel` (linaje Combat / Tank Wars). Score: rondas ganadas por J1 (0–5).
+- [ ] `duelo-tanques` — VERSUS · magenta · "Dos tanques, un laberinto, un solo superviviente." · Propuesto 2026-07-26 · Aprobado 2026-07-26 · **Razón:** Aporta apuntado 2D + proyectiles con rebote + terreno destructible; mecánica VERSUS distinta al reflejo 1D de `duelo-pixel` (linaje Combat / Tank Wars). Score: rondas ganadas por J1 (0–5). · Specs: `specs/game-jam/duelo-tanques/`
 - [ ] `laberinto-plasma` — ARCADE · cyan · "Guía la esfera por corredores giratorios." · Propuesto 2026-07-26 · Aprobado 2026-07-26 · **Razón:** Aporta entorno mutable (laberinto con paredes rotativas); mecánica de terreno dinámico ausente (`gloton` es estático, `ranaria` previsible).
 - [ ] `pinbol-cromo` — ARCADE · magenta · "Dos flippers, mil rebotes, cero perdón." · Propuesto 2026-07-26 · Aprobado 2026-07-26 · **Razón:** Pinball clásico con física de rebotes bajo gravedad realista + input de 2 botones (izq/der); esquema de control y sub-género ausentes.
 - [ ] `topo-neon` — ARCADE · yellow · "Golpea topos antes de que se escondan." · Propuesto 2026-07-26 · Aprobado 2026-07-26 · **Razón:** Whack-a-mole aporta puntería reactiva sobre grilla estática temporalizada; `rocas` es apuntado 360°, `invasores` filas descendentes.
