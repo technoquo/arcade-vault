@@ -1,6 +1,6 @@
 # SPEC 09 — UI Responsive Mobile
 
-> **Status:** aprobado
+> **Status:** implementado
 > **Depends on:** 01-mvp-visual, 02-home-landing
 > **Date:** 2026-07-26
 > **Objective:** Adaptar todas las páginas de Arcade Vault para que sean usables en móvil
