@@ -2805,3 +2805,87 @@ a {
 .term-body .caret {
   animation: blink 1s steps(1) infinite;
 }
+
+/* ── Touch Controls ───────────────────────────────────────────────────── */
+.touch-controls {
+  display: none;
+}
+
+@media (max-width: 639px) {
+  .touch-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 8px 4px;
+    width: 100%;
+  }
+
+  .tc-btn {
+    min-width: 56px;
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 245, 255, 0.08);
+    border: 1px solid rgba(0, 245, 255, 0.3);
+    border-radius: 6px;
+    color: var(--cyan);
+    font-family: var(--pixel);
+    font-size: 14px;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    transition:
+      background 0.08s,
+      border-color 0.08s;
+    padding: 0 10px;
+  }
+
+  .tc-btn:active {
+    background: rgba(0, 245, 255, 0.22);
+    border-color: var(--cyan);
+  }
+
+  .tc-btn--wide {
+    min-width: 80px;
+    flex: 1;
+    max-width: 140px;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+  }
+
+  .tc-btn--fire {
+    background: rgba(255, 0, 100, 0.1);
+    border-color: rgba(255, 0, 100, 0.4);
+    color: var(--magenta);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+  }
+
+  .tc-btn--fire:active {
+    background: rgba(255, 0, 100, 0.28);
+    border-color: var(--magenta);
+  }
+
+  /* D-pad: 2 rows × 3 cols (Tetris) */
+  .tc-dpad {
+    display: grid;
+    grid-template-columns: repeat(3, 56px);
+    grid-template-rows: repeat(2, 56px);
+    gap: 6px;
+  }
+
+  /* D-pad: 3 rows × 3 cols (Snake) */
+  .tc-dpad--3row {
+    grid-template-rows: repeat(3, 56px);
+  }
+
+  /* Row layouts (Asteroids, Arkanoid) */
+  .tc-asteroids,
+  .tc-arkanoid {
+    gap: 8px;
+  }
+}
