@@ -8,12 +8,12 @@ export default function ArkanoidGame({ onGameOver }: { onGameOver?: (score: numb
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [spritesheetReady, setSpritesheetReady] = useState(false);
   const [gameReady, setGameReady] = useState(false);
-  const [activeSkin, setActiveSkin] = useState<string>(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("arkanoid-skin") || "clasico";
-    }
-    return "clasico";
-  });
+  const [activeSkin, setActiveSkin] = useState<string>("clasico");
+
+  useEffect(() => {
+    const saved = localStorage.getItem("arkanoid-skin");
+    if (saved) setActiveSkin(saved);
+  }, []);
 
   useEffect(() => {
     const container = containerRef.current;

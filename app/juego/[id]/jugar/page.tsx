@@ -8,6 +8,7 @@ import AsteroidsGame from "@/components/AsteroidsGame";
 import TetrisGame from "@/components/TetrisGame";
 import ArkanoidGame from "@/components/ArkanoidGame";
 import SnakeGame from "@/components/SnakeGame";
+import TouchControls from "@/components/TouchControls";
 import { createClient } from "@/lib/supabase/client";
 
 interface LeaderboardEntry {
@@ -160,7 +161,7 @@ export default function JugarPage({
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 18, alignItems: "start" }}>
+      <div className="player-layout">
         <div className="crt">
           <div className="crt-screen">
             {id === "rocas" ? (
@@ -394,6 +395,7 @@ export default function JugarPage({
           )}
         </div>
       </div>
+      <TouchControls gameId={id} />
 
       {over && (
         <div className="modal-bd">
