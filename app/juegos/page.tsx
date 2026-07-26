@@ -9,7 +9,10 @@ interface Game {
 }
 
 const COVER_CLASS: Record<string, string> = {
+  arkanoid: "cover-bricks",
   rocas: "cover-rocas",
+  snake: "cover-snake",
+  tetris: "cover-tetro",
 };
 
 export default async function Juegos() {
