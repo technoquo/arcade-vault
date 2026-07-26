@@ -1,3 +1,84 @@
+(function () {
+"use strict";
+
+// ─── SKINS ───────────────────────────────────────────────────────────────────
+// Paletas para arkanoid. Los bloques usan el spritesheet original (colores
+// bakeados en PNG) y siempre se ven bien sobre cualquier fondo oscuro.
+// Las skins afectan: fondo del canvas, tint de paleta, tint de pelota, HUD y overlays.
+
+const SKIN_COLORS = {
+  clasico: {
+    bg:           '#000000',   // negro puro del canvas original
+    paddleTint:   '#cccccc',   // gris claro neutro
+    ballTint:     '#ffffff',   // blanco
+    hudText:      '#ffffff',   // blanco — contrast ~20.4:1 ✓ HUD
+    toastBg:      'rgba(0,0,0,0.6)',
+    toastText:    '#ffffff',
+    overlayBg:    'rgba(0,0,0,0.65)',
+    overlayTitle: '#ffffff',
+    overlaySubtitle: '#cccccc',
+    tintOpacity:  0,           // sin tint — sprites originales del spritesheet
+  },
+  retro: {
+    bg:           '#0d0800',   // marrón muy oscuro al estilo CRT encendida
+    paddleTint:   '#ff8c00',   // naranja ámbar — contrast 8.0:1 ✓ jugable
+    ballTint:     '#ffe066',   // amarillo cálido — contrast 13.4:1 ✓ jugable
+    hudText:      '#ffb347',   // naranja suave — contrast 7.6:1 ✓ HUD
+    toastBg:      'rgba(20,10,0,0.7)',
+    toastText:    '#ffe066',
+    overlayBg:    'rgba(10,5,0,0.75)',
+    overlayTitle: '#ffb347',
+    overlaySubtitle: '#ff8c00',
+    tintOpacity:  0.55,
+  },
+  neon: {
+    bg:           '#00000f',   // negro azulado synthwave
+    paddleTint:   '#00f5ff',   // cyan eléctrico — contrast 13.6:1 ✓ jugable
+    ballTint:     '#ff00aa',   // magenta — contrast 4.7:1 ✓ jugable
+    hudText:      '#00f5ff',   // cyan — contrast 13.6:1 ✓ HUD
+    toastBg:      'rgba(0,0,20,0.65)',
+    toastText:    '#00f5ff',
+    overlayBg:    'rgba(0,0,15,0.75)',
+    overlayTitle: '#00f5ff',
+    overlaySubtitle: '#ff00aa',
+    tintOpacity:  0.6,
+  },
+};
+
+let currentSkin = localStorage.getItem('arkanoid-skin') || 'clasico';
+if (!SKIN_COLORS[currentSkin]) currentSkin = 'clasico';
+
+function getSkin() {
+  return SKIN_COLORS[currentSkin];
+}
+
+// ─── CANVAS TINT ─────────────────────────────────────────────────────────────
+// Dibuja un sprite del spritesheet y le aplica un tint de color encima
+// usando un canvas auxiliar con composite 'source-atop'.
+const tintCanvas = document.createElement('canvas');
+tintCanvas.width = 200;
+tintCanvas.height = 30;
+const tintCtx = tintCanvas.getContext('2d');
+
+function drawSpriteTinted(ctx, name, x, y, w, h, tintColor, opacity) {
+  if (opacity <= 0) {
+    drawSprite(ctx, name, x, y, w, h);
+    return;
+  }
+  tintCanvas.width = w;
+  tintCanvas.height = h;
+  tintCtx.clearRect(0, 0, w, h);
+  drawSprite(tintCtx, name, 0, 0, w, h);
+  tintCtx.globalCompositeOperation = 'source-atop';
+  tintCtx.globalAlpha = opacity;
+  tintCtx.fillStyle = tintColor;
+  tintCtx.fillRect(0, 0, w, h);
+  tintCtx.globalCompositeOperation = 'source-over';
+  tintCtx.globalAlpha = 1;
+  ctx.drawImage(tintCanvas, x, y, w, h);
+}
+
+// ─── GAME CONSTANTS ───────────────────────────────────────────────────────────
 const CANVAS_W = 800;
 const CANVAS_H = 600;
 
@@ -92,6 +173,20 @@ canvas.addEventListener('click', () => {
     launch();
   }
 });
+
+// ─── SELECTOR DE SKIN (cableado desde ArkanoidGame.tsx) ──────────────────────
+function applySkin(skinName) {
+  if (!SKIN_COLORS[skinName]) return;
+  currentSkin = skinName;
+  localStorage.setItem('arkanoid-skin', skinName);
+  // Actualizar botones activos
+  document.querySelectorAll('.arkanoid-skin-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.skin === skinName);
+  });
+}
+
+// Exponer para que ArkanoidGame.tsx pueda llamarlo desde React
+window.arkanoidApplySkin = applySkin;
 
 function resetGame() {
   state.phase = 'waiting';
@@ -235,11 +330,13 @@ function update(delta) {
 }
 
 function draw() {
-  ctx.fillStyle = '#000';
+  const skin = getSkin();
+
+  ctx.fillStyle = skin.bg;
   ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
 
-  drawSprite(ctx, 'paddle', paddle.x, paddle.y, paddle.width, paddle.height);
-  drawSprite(ctx, 'ball', ball.x - ball.radius, ball.y - ball.radius, ball.radius * 2, ball.radius * 2);
+  drawSpriteTinted(ctx, 'paddle', paddle.x, paddle.y, paddle.width, paddle.height, skin.paddleTint, skin.tintOpacity);
+  drawSpriteTinted(ctx, 'ball', ball.x - ball.radius, ball.y - ball.radius, ball.radius * 2, ball.radius * 2, skin.ballTint, skin.tintOpacity);
 
   for (const block of blocks) {
     if (block.alive) {
@@ -251,17 +348,17 @@ function draw() {
     }
   }
 
-  drawHUD();
+  drawHUD(skin);
 
   if (state.phase === 'gameover') {
-    drawOverlay('GAME OVER', 'Pulsa R o haz clic para reiniciar');
+    drawOverlay('GAME OVER', 'Pulsa R o haz clic para reiniciar', skin);
   } else if (state.phase === 'win') {
-    drawOverlay('¡GANASTE!', 'Pulsa R o haz clic para reiniciar');
+    drawOverlay('¡GANASTE!', 'Pulsa R o haz clic para reiniciar', skin);
   } else if (state.phase === 'level-complete') {
     if (state.level === 100) {
-      drawOverlay('¡Completaste el juego!', '');
+      drawOverlay('¡Completaste el juego!', '', skin);
     } else {
-      drawOverlay('Nivel ' + state.level + ' completado', '');
+      drawOverlay('Nivel ' + state.level + ' completado', '', skin);
     }
   }
 
@@ -271,18 +368,18 @@ function draw() {
     const tw = ctx.measureText(toast.text).width;
     const tx = CANVAS_W - 8 - pad;
     const ty = 38;
-    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    ctx.fillStyle = skin.toastBg;
     ctx.fillRect(tx - tw - pad, ty - 14, tw + pad * 2, 20);
-    ctx.fillStyle = '#fff';
+    ctx.fillStyle = skin.toastText;
     ctx.textAlign = 'right';
     ctx.fillText(toast.text, tx, ty);
   }
 }
 
-function drawHUD() {
+function drawHUD(skin) {
   ctx.font = 'bold 18px monospace';
   ctx.textAlign = 'left';
-  ctx.fillStyle = '#fff';
+  ctx.fillStyle = skin.hudText;
   ctx.fillText('Puntos: ' + state.score, 12, 30);
   ctx.fillText('Nivel: ' + state.level, 12, 52);
 
@@ -291,21 +388,22 @@ function drawHUD() {
   const totalWidth = state.lives * (ballSize + ballGap) - ballGap;
   let bx = CANVAS_W - 12 - totalWidth;
   for (let i = 0; i < state.lives; i++) {
-    drawSprite(ctx, 'ball', bx, 12, ballSize, ballSize);
+    drawSpriteTinted(ctx, 'ball', bx, 12, ballSize, ballSize, skin.ballTint, skin.tintOpacity);
     bx += ballSize + ballGap;
   }
 }
 
-function drawOverlay(title, subtitle) {
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+function drawOverlay(title, subtitle, skin) {
+  ctx.fillStyle = skin.overlayBg;
   ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
 
   ctx.textAlign = 'center';
-  ctx.fillStyle = '#fff';
+  ctx.fillStyle = skin.overlayTitle;
   ctx.font = 'bold 56px monospace';
   ctx.fillText(title, CANVAS_W / 2, CANVAS_H / 2 - 20);
 
   ctx.font = '22px monospace';
+  ctx.fillStyle = skin.overlaySubtitle;
   ctx.fillText(subtitle, CANVAS_W / 2, CANVAS_H / 2 + 30);
 }
 
@@ -321,5 +419,11 @@ function loop(timestamp) {
 
 loadSpritesheet(() => {
   createBlocks();
+  // Marcar botón activo al iniciar
+  document.querySelectorAll('.arkanoid-skin-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.skin === currentSkin);
+  });
   requestAnimationFrame(loop);
 });
+
+})();

@@ -1,5 +1,65 @@
 "use strict";
 
+// ── Skins ─────────────────────────────────────────────────────────────────────
+const SKIN_BG = {
+  clasico: "#000000",
+  retro:   "#0a0500",
+  neon:    "#05000f",
+};
+
+const SKIN_COLORS = {
+  clasico: {
+    ship:      "#ffffff",
+    thruster:  "#a0a0a0",
+    asteroid:  "#c8c8c8",
+    bullet:    "#ffffff",
+    powerup:   "#e8a020",
+    hudText:   "#ffffff",
+    hudTriple: "#e8a020",
+    particle:  "#c8c8c8",
+  },
+  retro: {
+    ship:      "#ff6600",
+    thruster:  "#ffaa00",
+    asteroid:  "#39ff14",
+    bullet:    "#ff6600",
+    powerup:   "#ffaa00",
+    hudText:   "#e8c060",
+    hudTriple: "#ffaa00",
+    particle:  "#ff3399",
+  },
+  neon: {
+    ship:      "#00ffff",
+    thruster:  "#7700ff",
+    asteroid:  "#ff00ff",
+    bullet:    "#ccff00",
+    powerup:   "#e040fb",
+    hudText:   "#e040fb",
+    hudTriple: "#ccff00",
+    particle:  "#00e5ff",
+  },
+};
+
+let currentSkin = localStorage.getItem("rocas-skin") || "clasico";
+
+function getSkinColors() {
+  return SKIN_COLORS[currentSkin] || SKIN_COLORS.clasico;
+}
+
+function getSkinBg() {
+  return SKIN_BG[currentSkin] || SKIN_BG.clasico;
+}
+
+// Escuchar cambios de skin desde el selector del componente React
+document.addEventListener("skinchange", (e) => {
+  const detail = e.detail;
+  if (detail && SKIN_COLORS[detail]) {
+    currentSkin = detail;
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 const W = 800;
@@ -61,7 +121,7 @@ class Bullet {
   }
 
   draw() {
-    ctx.fillStyle = "#fff";
+    ctx.fillStyle = getSkinColors().bullet;
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
     ctx.fill();
@@ -116,7 +176,7 @@ class Asteroid {
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.rotate(this.rot);
-    ctx.strokeStyle = "#fff";
+    ctx.strokeStyle = getSkinColors().asteroid;
     ctx.lineWidth = 1.5;
     ctx.lineJoin = "round";
     ctx.beginPath();
@@ -196,7 +256,7 @@ class Ship {
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.rotate(this.angle);
-    ctx.strokeStyle = "#fff";
+    ctx.strokeStyle = getSkinColors().ship;
     ctx.lineWidth = 1.5;
     ctx.lineJoin = "round";
 
@@ -215,7 +275,7 @@ class Ship {
       ctx.moveTo(-8, -4);
       ctx.lineTo(-8 - rand(6, 14), 0);
       ctx.lineTo(-8, 4);
-      ctx.strokeStyle = "rgba(255, 130, 0, 0.85)";
+      ctx.strokeStyle = getSkinColors().thruster;
       ctx.stroke();
     }
 
@@ -246,7 +306,12 @@ class Particle {
 
   draw() {
     const alpha = this.ttl / this.life;
-    ctx.strokeStyle = `rgba(255,255,255,${alpha.toFixed(2)})`;
+    // Convertir el hex de partícula a rgba para aplicar el fade
+    const pc = getSkinColors().particle;
+    const pr = parseInt(pc.slice(1, 3), 16);
+    const pg = parseInt(pc.slice(3, 5), 16);
+    const pb = parseInt(pc.slice(5, 7), 16);
+    ctx.strokeStyle = `rgba(${pr},${pg},${pb},${alpha.toFixed(2)})`;
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(this.x, this.y);
@@ -279,13 +344,13 @@ class PowerUp {
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.scale(scale, scale);
-    ctx.strokeStyle = "#ffd84a";
+    ctx.strokeStyle = getSkinColors().powerup;
     ctx.lineWidth = 1.8;
     ctx.beginPath();
     ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
     ctx.stroke();
 
-    ctx.fillStyle = "#ffd84a";
+    ctx.fillStyle = getSkinColors().powerup;
     ctx.font = "bold 14px monospace";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
@@ -448,7 +513,7 @@ function drawLifeIcon(x, y) {
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(-Math.PI / 2);
-  ctx.strokeStyle = "#fff";
+  ctx.strokeStyle = getSkinColors().ship;
   ctx.lineWidth = 1.2;
   ctx.lineJoin = "round";
   ctx.beginPath();
@@ -462,7 +527,7 @@ function drawLifeIcon(x, y) {
 }
 
 function drawHUD() {
-  ctx.fillStyle = "#fff";
+  ctx.fillStyle = getSkinColors().hudText;
   ctx.font = "15px monospace";
 
   ctx.textAlign = "left";
@@ -474,24 +539,28 @@ function drawHUD() {
   for (let i = 0; i < lives; i++) drawLifeIcon(W - 16 - i * 22, 18);
 
   if (tripleShotTimer > 0) {
-    ctx.fillStyle = "#ffd84a";
+    ctx.fillStyle = getSkinColors().hudTriple;
     ctx.textAlign = "left";
     ctx.fillText(`3X SHOT ${Math.ceil(tripleShotTimer)}s`, 14, 48);
   }
 }
 
 function drawOverlay(title, sub) {
+  const hc = getSkinColors().hudText;
+  const hr = parseInt(hc.slice(1, 3), 16);
+  const hg = parseInt(hc.slice(3, 5), 16);
+  const hb = parseInt(hc.slice(5, 7), 16);
   ctx.textAlign = "center";
-  ctx.fillStyle = "#fff";
+  ctx.fillStyle = hc;
   ctx.font = "bold 46px monospace";
   ctx.fillText(title, W / 2, H / 2 - 18);
   ctx.font = "18px monospace";
-  ctx.fillStyle = "rgba(255,255,255,0.65)";
+  ctx.fillStyle = `rgba(${hr},${hg},${hb},0.65)`;
   ctx.fillText(sub, W / 2, H / 2 + 22);
 }
 
 function draw() {
-  ctx.fillStyle = "#000";
+  ctx.fillStyle = getSkinBg();
   ctx.fillRect(0, 0, W, H);
 
   particles.forEach((p) => p.draw());

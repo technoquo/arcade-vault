@@ -1,6 +1,67 @@
 (function () {
   "use strict";
 
+  // ── Skins ────────────────────────────────────────────────────────────────────
+
+  const SKIN_COLORS = {
+    clasico: {
+      bg:        "#080808",
+      headFill:  "#d4d4d4",
+      headGlow:  "#d4d4d4",
+      bodyBase:  { r: 180, g: 180, b: 180 },
+      eyeFill:   "#080808",
+      foodFb:    "#e0e0e0",
+      hudText:   "#d4d4d4",
+      hudBg:     "rgba(0,0,0,0.55)",
+      grid:      "rgba(255,255,255,0.04)",
+    },
+    retro: {
+      bg:        "#0c0800",
+      headFill:  "#ffd700",
+      headGlow:  "#ffa500",
+      bodyBase:  { r: 224, g: 120, b: 0 },
+      eyeFill:   "#0c0800",
+      foodFb:    "#ff6600",
+      hudText:   "#ffcc44",
+      hudBg:     "rgba(12,8,0,0.65)",
+      grid:      "rgba(255,200,0,0.05)",
+    },
+    neon: {
+      bg:        "#05050a",
+      headFill:  "#00ffff",
+      headGlow:  "#00ffff",
+      bodyBase:  { r: 0, g: 200, b: 200 },
+      eyeFill:   "#05050a",
+      foodFb:    "#ff00aa",
+      hudText:   "#e6e9ff",
+      hudBg:     "rgba(0,0,10,0.65)",
+      grid:      "rgba(0,255,255,0.04)",
+    },
+  };
+
+  const SKIN_BG = {
+    clasico: "#080808",
+    retro:   "#0c0800",
+    neon:    "#05050a",
+  };
+
+  let currentSkin = localStorage.getItem("snake-skin") || "clasico";
+
+  function getSkin() {
+    return SKIN_COLORS[currentSkin] || SKIN_COLORS.clasico;
+  }
+
+  function applySkin(skinKey) {
+    currentSkin = skinKey;
+    localStorage.setItem("snake-skin", skinKey);
+    // Update active button state
+    document.querySelectorAll(".snake-skin-btn").forEach(function (btn) {
+      btn.classList.toggle("active", btn.dataset.skin === skinKey);
+    });
+  }
+
+  // ── Constants ────────────────────────────────────────────────────────────────
+
   const CELL = 20;
   const COLS = 28;
   const ROWS = 28;
@@ -40,6 +101,14 @@
     fruitImg = new Image();
     fruitImg.onload = function () { atlasReady = true; };
     fruitImg.src = "/snake/snake-assets/fruits.png";
+
+    // Wire skin buttons
+    document.querySelectorAll(".snake-skin-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        applySkin(btn.dataset.skin);
+      });
+      btn.classList.toggle("active", btn.dataset.skin === currentSkin);
+    });
 
     resetState();
     document.addEventListener("keydown", handleKey);
@@ -162,12 +231,14 @@
   }
 
   function draw() {
+    var skin = getSkin();
+
     // Background
-    ctx.fillStyle = "#0a0a0a";
+    ctx.fillStyle = skin.bg;
     ctx.fillRect(0, 0, W, H);
 
     // Subtle grid dots
-    ctx.fillStyle = "rgba(255,255,255,0.04)";
+    ctx.fillStyle = skin.grid;
     for (var gx = 0; gx < COLS; gx++) {
       for (var gy = 0; gy < ROWS; gy++) {
         ctx.fillRect(gx * CELL + CELL / 2 - 1, gy * CELL + CELL / 2 - 1, 2, 2);
@@ -183,15 +254,23 @@
   }
 
   function drawSnake() {
+    var skin = getSkin();
+    var bb = skin.bodyBase;
     var len = snake.length;
     for (var i = len - 1; i >= 0; i--) {
       var seg = snake[i];
       var isHead = i === 0;
-      var g = Math.max(80, 220 - i * 3);
-      var b = Math.max(20, 100 - i * 2);
-      ctx.fillStyle = isHead
-        ? "#00ff88"
-        : ("rgba(0," + g + "," + b + ",0.92)");
+
+      if (isHead) {
+        ctx.fillStyle = skin.headFill;
+      } else {
+        // Fade body segments toward darker variant of the body base color
+        var fade = Math.max(0.35, 1 - i / len);
+        var r = Math.round(bb.r * fade);
+        var g = Math.round(bb.g * fade);
+        var b = Math.round(bb.b * fade);
+        ctx.fillStyle = "rgba(" + r + "," + g + "," + b + ",0.92)";
+      }
 
       var pad = isHead ? 1 : 2;
       ctx.fillRect(
@@ -204,15 +283,15 @@
 
     // Glow on head
     var head = snake[0];
-    ctx.shadowColor = "#00ff88";
+    ctx.shadowColor = skin.headGlow;
     ctx.shadowBlur  = 10;
-    ctx.fillStyle   = "#00ff88";
+    ctx.fillStyle   = skin.headFill;
     ctx.fillRect(head.x * CELL + 1, head.y * CELL + 1, CELL - 2, CELL - 2);
     ctx.shadowBlur  = 0;
 
     // Eyes
     var eyeSize = 3;
-    ctx.fillStyle = "#0a0a0a";
+    ctx.fillStyle = skin.eyeFill;
     var ex = head.x * CELL + CELL / 2;
     var ey = head.y * CELL + CELL / 2;
     var d  = 4;
@@ -223,6 +302,7 @@
   }
 
   function drawFood() {
+    var skin = getSkin();
     var atlas = window.SPRITE_ATLAS;
     if (atlasReady && atlas && atlas.fruits[food.key]) {
       var s = atlas.fruits[food.key];
@@ -235,26 +315,28 @@
         food.y * CELL + CELL / 2,
         CELL / 2 - 2, 0, Math.PI * 2
       );
-      ctx.fillStyle = "#ff4466";
+      ctx.fillStyle = skin.foodFb;
       ctx.fill();
     }
   }
 
   function drawScore() {
-    ctx.fillStyle = "rgba(0,0,0,0.55)";
+    var skin = getSkin();
+    ctx.fillStyle = skin.hudBg;
     ctx.fillRect(6, 4, 130, 20);
     ctx.font = "bold 11px monospace";
-    ctx.fillStyle = "#00ff88";
+    ctx.fillStyle = skin.hudText;
     ctx.textAlign = "left";
     ctx.textBaseline = "middle";
     ctx.fillText("SCORE  " + score, 12, 14);
   }
 
   function drawIdlePrompt() {
+    var skin = getSkin();
     ctx.fillStyle = "rgba(0,0,0,0.6)";
     ctx.fillRect(0, H / 2 - 34, W, 44);
     ctx.font = "bold 13px monospace";
-    ctx.fillStyle = "#00ff88";
+    ctx.fillStyle = skin.hudText;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText("FLECHAS O WASD PARA INICIAR", W / 2, H / 2 - 13);
