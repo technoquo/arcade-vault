@@ -56,10 +56,10 @@ export default function TetrisGame({ onGameOver }: { onGameOver?: (score: number
 
   useEffect(() => {
     if (onGameOver) {
-      (window as any).onGameOver = onGameOver;
+      (window as unknown as Record<string, unknown>).onGameOver = onGameOver;
     }
     return () => {
-      delete (window as any).onGameOver;
+      delete (window as unknown as Record<string, unknown>).onGameOver;
     };
   }, [onGameOver]);
 

@@ -108,5 +108,31 @@ export default function TouchControls({ gameId }: { gameId: string }) {
     );
   }
 
+  if (gameId === "frogger") {
+    return (
+      <div className="touch-controls tc-snake">
+        <div className="tc-dpad tc-dpad--3row">
+          <span />
+          <button className="tc-btn" onPointerDown={tapKey("ArrowUp", "ArrowUp")}>
+            ↑
+          </button>
+          <span />
+          <button className="tc-btn" onPointerDown={tapKey("ArrowLeft", "ArrowLeft")}>
+            ←
+          </button>
+          <span />
+          <button className="tc-btn" onPointerDown={tapKey("ArrowRight", "ArrowRight")}>
+            →
+          </button>
+          <span />
+          <button className="tc-btn" onPointerDown={tapKey("ArrowDown", "ArrowDown")}>
+            ↓
+          </button>
+          <span />
+        </div>
+      </div>
+    );
+  }
+
   return null;
 }
