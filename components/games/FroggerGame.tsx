@@ -241,12 +241,12 @@ export default function FroggerGame(props: FroggerGameProps) {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const lanes = buildLanes(1);
+    let lanes = buildLanes(1);
     const frog = newFrog();
     const goalsFilled: boolean[] = [false, false, false, false, false];
     let score = 0;
-    const lives = 3;
-    const level = 1;
+    let lives = 3;
+    let level = 1;
     let roundTimer = roundTimeForLevel(1);
     let farthestRow = ROW_START;
     let pendingDir: Direction | null = null;
@@ -255,6 +255,7 @@ export default function FroggerGame(props: FroggerGameProps) {
     let prevLevel = -1;
     let turtlePhase = 0;
     let running = true;
+    let gameOver = false;
     let rafId = 0;
     let lastTime = performance.now();
 
@@ -288,19 +289,78 @@ export default function FroggerGame(props: FroggerGameProps) {
     };
     document.addEventListener("keydown", onKey);
 
-    // Stubs — se completan en pasos 5, 6, 7.
-    const checkRoadCollision = (): boolean => false;
-    const getSupport = (): Entity | null => null;
-    type GoalResult = "none" | "goal" | "die";
-    const checkGoal = (): GoalResult => "none";
+    type GoalResult = "none" | "die" | "hit" | "goal";
+
+    const resetFrogPosition = () => {
+      frog.col = centerCol();
+      frog.row = ROW_START;
+      frog.animating = false;
+      frog.animT = 0;
+      frog.targetCol = frog.col;
+      frog.targetRow = frog.row;
+      farthestRow = ROW_START;
+      roundTimer = roundTimeForLevel(level);
+    };
+
+    const checkRoadCollision = (): boolean => {
+      if (frog.row < ROW_ROAD_TOP || frog.row > ROW_ROAD_BOT) return false;
+      const lane = lanes.find((l) => l.row === frog.row);
+      if (!lane) return false;
+      return lane.entities.some((e) => frog.col + 1 > e.col && frog.col < e.col + e.width);
+    };
+
+    const getSupport = (): Entity | null => {
+      if (frog.row < ROW_RIVER_TOP || frog.row > ROW_RIVER_BOT) return null;
+      const lane = lanes.find((l) => l.row === frog.row);
+      if (!lane) return null;
+      for (const e of lane.entities) {
+        if (frog.col + 1 > e.col && frog.col < e.col + e.width) {
+          if (e.type === "turtle" && e.submerged) return null;
+          return e;
+        }
+      }
+      return null;
+    };
+
+    const checkGoal = (): GoalResult => {
+      if (frog.row !== ROW_GOALS) return "none";
+      const fc = Math.round(frog.col);
+      const idx = GOAL_COLS.findIndex((cx) => fc >= cx && fc < cx + 2);
+      if (idx === -1) return "die";
+      if (goalsFilled[idx]) return "die";
+      goalsFilled[idx] = true;
+      score += 50 + Math.floor(roundTimer / 1000) * 10;
+      if (goalsFilled.every((f) => f)) return "goal";
+      return "hit";
+    };
+
     const completeRound = () => {
-      /* paso 6 */
+      score += 200;
+      level += 1;
+      for (let i = 0; i < goalsFilled.length; i++) goalsFilled[i] = false;
+      lanes = buildLanes(level);
+      resetFrogPosition();
     };
     const killFrog = () => {
-      /* paso 7 */
+      if (gameOver) return;
+      lives -= 1;
+      if (lives <= 0) {
+        lives = 0;
+        if (lives !== prevLives) {
+          prevLives = lives;
+          propsRef.current.onLivesChange(0);
+        }
+        gameOver = true;
+        running = false;
+        cancelAnimationFrame(rafId);
+        propsRef.current.onGameOver(score);
+        return;
+      }
+      resetFrogPosition();
     };
 
     const update = (dt: number) => {
+      if (gameOver) return;
       if (propsRef.current.paused) return;
 
       // Avanzar entidades
@@ -353,15 +413,18 @@ export default function FroggerGame(props: FroggerGameProps) {
             farthestRow = frog.row;
           }
 
-          // Resolución de celda destino (stubs por ahora; pasos 5-7)
+          // Resolución de celda destino
           const goal = checkGoal();
           if (goal === "die") killFrog();
           else if (goal === "goal") completeRound();
+          else if (goal === "hit") resetFrogPosition();
         }
       } else if (frog.row >= ROW_RIVER_TOP && frog.row <= ROW_RIVER_BOT) {
-        // Rana en río: moverse con el soporte
+        // Rana en río: sin soporte muere; con soporte se arrastra
         const support = getSupport();
-        if (support) {
+        if (!support) {
+          killFrog();
+        } else {
           const lane = lanes.find((l) => l.row === frog.row);
           if (lane) {
             const drift = (lane.speed * lane.dir * dt) / 16 / CELL;
@@ -369,10 +432,9 @@ export default function FroggerGame(props: FroggerGameProps) {
             if (frog.col < 0 || frog.col > COLS - 1) killFrog();
           }
         }
-        // Si no hay soporte, morir (stub — se implementa en paso 5)
       }
 
-      // Colisión con carretera (stub)
+      // Colisión con carretera
       if (!frog.animating && frog.row >= ROW_ROAD_TOP && frog.row <= ROW_ROAD_BOT) {
         if (checkRoadCollision()) killFrog();
       }
@@ -468,14 +530,6 @@ export default function FroggerGame(props: FroggerGameProps) {
       ctx.fillStyle = timePct > 0.5 ? "#4ee358" : timePct > 0.25 ? "#e8c94a" : "#e34e58";
       ctx.fillRect(0, 0, barW, 4);
     };
-
-    // Silencio de lint: exponen dependencias que se cablearán en pasos 5-7.
-    void lanes;
-    void goalsFilled;
-    void score;
-    void lives;
-    void level;
-    void farthestRow;
 
     const loop = (now: number) => {
       if (!running) return;
