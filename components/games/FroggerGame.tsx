@@ -49,6 +49,71 @@ export interface FroggerGameProps {
   onGameOver: (finalScore: number) => void;
 }
 
+function spreadEntities(
+  count: number,
+  type: Entity["type"],
+  width: number,
+  startOffset = 0
+): Entity[] {
+  const step = COLS / count;
+  const out: Entity[] = [];
+  for (let i = 0; i < count; i++) {
+    out.push({
+      col: (startOffset + i * step) % COLS,
+      width,
+      type,
+      ...(type === "turtle" ? { submerged: false } : {}),
+    });
+  }
+  return out;
+}
+
+function buildLanes(level: number): Lane[] {
+  const scale = Math.pow(1.15, Math.max(0, level - 1));
+
+  const roadPresets: Array<{
+    row: number;
+    baseSpeed: number;
+    dir: 1 | -1;
+    type: Entity["type"];
+    width: number;
+    count: number;
+    offset: number;
+  }> = [
+    { row: 12, baseSpeed: 1.5, dir: 1, type: "car", width: 1, count: 3, offset: 0 },
+    { row: 11, baseSpeed: 2.2, dir: -1, type: "truck", width: 3, count: 2, offset: 2 },
+    { row: 10, baseSpeed: 2.6, dir: 1, type: "car", width: 1, count: 3, offset: 1 },
+    { row: 9, baseSpeed: 3.4, dir: -1, type: "car", width: 1, count: 4, offset: 0.5 },
+    { row: 8, baseSpeed: 2.0, dir: 1, type: "truck", width: 2, count: 2, offset: 3 },
+  ];
+
+  const riverPresets: Array<{
+    row: number;
+    baseSpeed: number;
+    dir: 1 | -1;
+    type: Entity["type"];
+    width: number;
+    count: number;
+    offset: number;
+  }> = [
+    { row: 6, baseSpeed: 1.2, dir: 1, type: "log", width: 3, count: 2, offset: 0 },
+    { row: 5, baseSpeed: 1.6, dir: -1, type: "turtle", width: 2, count: 3, offset: 1 },
+    { row: 4, baseSpeed: 1.0, dir: 1, type: "log", width: 4, count: 2, offset: 3 },
+    { row: 3, baseSpeed: 2.0, dir: -1, type: "turtle", width: 3, count: 2, offset: 0 },
+    { row: 2, baseSpeed: 2.4, dir: 1, type: "log", width: 2, count: 3, offset: 2 },
+    { row: 1, baseSpeed: 1.8, dir: -1, type: "log", width: 3, count: 2, offset: 1 },
+  ];
+
+  const build = (preset: (typeof roadPresets)[number]): Lane => ({
+    row: preset.row,
+    speed: preset.baseSpeed * scale,
+    dir: preset.dir,
+    entities: spreadEntities(preset.count, preset.type, preset.width, preset.offset),
+  });
+
+  return [...roadPresets.map(build), ...riverPresets.map(build)];
+}
+
 export default function FroggerGame(_props: FroggerGameProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
