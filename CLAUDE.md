@@ -19,6 +19,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Usa siempre `/frontend-design` para diseñar la interfaz del usuario.
 - Nuevas features: empieza con `/spec` y luego implementa con `/spec-impl`.
 - Integrar un juego canvas ya diseñado: `/add-game <slug>`.
+- Implementar una spec de **juego nuevo** con cierre automatizado: `/spec-impl-game <NN-spec-name>` (`.claude/skills/spec-impl-game/SKILL.md`). Extiende `/spec-impl`: ejecuta las Fases 1-4 estándar (identificar spec → validar `Approved` → crear rama `spec-NN-slug` → implementar plan paso a paso con pausas) y, al terminar, agrega la Fase 5 que infiere el slug del juego desde `lib/data.ts` (`GAMES[]`) y dispara **en secuencia, nunca en paralelo** los subagentes `skin-designer` (5A) y `mobile-porter` (5B), cada uno con confirmación explícita (`sí` / `saltar` / `cancelar`). El estado de la spec permanece `Approved` durante todo el flujo — pasarlo a `Implementado` sigue siendo decisión humana tras verificar criterios de aceptación. Usalo en lugar de `/spec-impl` cuando la spec sea de un juego nuevo de Arcade Vault.
 
 ## Subagentes
 
