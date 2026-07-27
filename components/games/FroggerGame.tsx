@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const COLS = 16;
 const ROWS = 14;
@@ -17,6 +17,105 @@ const ROW_ROAD_BOT = 12;
 const ROW_START = 13;
 
 type Direction = "up" | "down" | "left" | "right";
+type SkinName = "clasico" | "retro" | "neon";
+
+interface ColorSet {
+  bgGoals: string;
+  bgRiver: string;
+  bgSafe: string;
+  bgRoad: string;
+  goalFrame: string;
+  goalFilled: string;
+  carBody: string;
+  truckBody: string;
+  truckCab: string;
+  logBody: string;
+  logGrain: string;
+  turtleBody: string;
+  turtleCenter: string;
+  frogBody: string;
+  frogEyes: string;
+  frogPupils: string;
+  hudText: string;
+  timerOk: string;
+  timerMed: string;
+  timerLow: string;
+}
+
+const SKIN_COLORS: Record<SkinName, ColorSet> = {
+  clasico: {
+    bgGoals: "#051a08",
+    bgRiver: "#051a35",
+    bgSafe: "#0a2e18",
+    bgRoad: "#0f0f0f",
+    goalFrame: "#c8a020",
+    goalFilled: "#1f7a30",
+    carBody: "#e04040",
+    truckBody: "#707888",
+    truckCab: "#3c4050",
+    logBody: "#8b5a20",
+    logGrain: "#5a3a10",
+    turtleBody: "#3fb84a",
+    turtleCenter: "#1e7a28",
+    frogBody: "#3ed85a",
+    frogEyes: "#ffffff",
+    frogPupils: "#000000",
+    hudText: "#e0e4ff",
+    timerOk: "#3ed85a",
+    timerMed: "#e8c030",
+    timerLow: "#e04040",
+  },
+  retro: {
+    bgGoals: "#0a1800",
+    bgRiver: "#001428",
+    bgSafe: "#0a2000",
+    bgRoad: "#100c00",
+    goalFrame: "#d4b000",
+    goalFilled: "#4a7a00",
+    carBody: "#ff6020",
+    truckBody: "#8a7040",
+    truckCab: "#504030",
+    logBody: "#a06020",
+    logGrain: "#6a3c10",
+    turtleBody: "#60c020",
+    turtleCenter: "#2a6000",
+    frogBody: "#90e020",
+    frogEyes: "#ffffc0",
+    frogPupils: "#000000",
+    hudText: "#ffd060",
+    timerOk: "#90e020",
+    timerMed: "#e0a000",
+    timerLow: "#ff4400",
+  },
+  neon: {
+    bgGoals: "#000a12",
+    bgRiver: "#000820",
+    bgSafe: "#020a0a",
+    bgRoad: "#08000a",
+    goalFrame: "#00f5ff",
+    goalFilled: "#00c8b0",
+    carBody: "#ff0088",
+    truckBody: "#6040c0",
+    truckCab: "#402880",
+    logBody: "#c06000",
+    logGrain: "#802800",
+    turtleBody: "#00e8c0",
+    turtleCenter: "#008870",
+    frogBody: "#00ff88",
+    frogEyes: "#ffffff",
+    frogPupils: "#000000",
+    hudText: "#e0e8ff",
+    timerOk: "#00ff88",
+    timerMed: "#f5ff00",
+    timerLow: "#ff0044",
+  },
+};
+
+const SKIN_BTNS: Array<{ key: SkinName; label: string }> = [
+  { key: "clasico", label: "Clásico" },
+  { key: "retro", label: "Retro" },
+  { key: "neon", label: "Neon" },
+];
 
 interface Entity {
   col: number;
@@ -132,11 +231,17 @@ function roundTimeForLevel(level: number): number {
   return Math.max(6000, INITIAL_ROUND_MS - (level - 1) * 1000);
 }
 
-function drawEntity(ctx: CanvasRenderingContext2D, e: Entity, x: number, y: number) {
+function drawEntity(
+  ctx: CanvasRenderingContext2D,
+  e: Entity,
+  x: number,
+  y: number,
+  colors: ColorSet
+) {
   const w = e.width * CELL;
   const h = CELL;
   if (e.type === "car") {
-    ctx.fillStyle = "#e34e58";
+    ctx.fillStyle = colors.carBody;
     ctx.fillRect(x + 3, y + 6, w - 6, h - 12);
     ctx.fillStyle = "#111";
     ctx.beginPath();
@@ -144,20 +249,20 @@ function drawEntity(ctx: CanvasRenderingContext2D, e: Entity, x: number, y: numb
     ctx.arc(x + w - 10, y + h - 6, 4, 0, Math.PI * 2);
     ctx.fill();
   } else if (e.type === "truck") {
-    ctx.fillStyle = "#6a6f7a";
+    ctx.fillStyle = colors.truckBody;
     ctx.fillRect(x + 2, y + 4, w - 4, h - 8);
-    ctx.fillStyle = "#3a3f4a";
+    ctx.fillStyle = colors.truckCab;
     ctx.fillRect(x + w - CELL + 2, y + 4, CELL - 6, h - 8);
   } else if (e.type === "log") {
-    ctx.fillStyle = "#7a4a1a";
+    ctx.fillStyle = colors.logBody;
     ctx.fillRect(x + 2, y + 4, w - 4, h - 8);
-    ctx.fillStyle = "#5a3612";
+    ctx.fillStyle = colors.logGrain;
     for (let i = 1; i < e.width; i++) {
       ctx.fillRect(x + i * CELL - 1, y + 4, 2, h - 8);
     }
   } else if (e.type === "turtle") {
     if (e.submerged) {
-      ctx.strokeStyle = "rgba(90, 190, 110, 0.45)";
+      ctx.strokeStyle = `${colors.turtleBody}72`; // ~45% opacity
       ctx.lineWidth = 2;
       for (let i = 0; i < e.width; i++) {
         ctx.beginPath();
@@ -165,13 +270,13 @@ function drawEntity(ctx: CanvasRenderingContext2D, e: Entity, x: number, y: numb
         ctx.stroke();
       }
     } else {
-      ctx.fillStyle = "#4ea34e";
+      ctx.fillStyle = colors.turtleBody;
       for (let i = 0; i < e.width; i++) {
         ctx.beginPath();
         ctx.arc(x + i * CELL + CELL / 2, y + CELL / 2, 14, 0, Math.PI * 2);
         ctx.fill();
       }
-      ctx.fillStyle = "#2a7a35";
+      ctx.fillStyle = colors.turtleCenter;
       for (let i = 0; i < e.width; i++) {
         ctx.beginPath();
         ctx.arc(x + i * CELL + CELL / 2, y + CELL / 2, 6, 0, Math.PI * 2);
@@ -181,23 +286,29 @@ function drawEntity(ctx: CanvasRenderingContext2D, e: Entity, x: number, y: numb
   }
 }
 
-function drawFrog(ctx: CanvasRenderingContext2D, x: number, y: number, jumping: boolean) {
-  ctx.fillStyle = "#4ee358";
+function drawFrog(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  jumping: boolean,
+  colors: ColorSet
+) {
+  ctx.fillStyle = colors.frogBody;
   ctx.beginPath();
   ctx.ellipse(x + CELL / 2, y + CELL / 2, 14, 12, 0, 0, Math.PI * 2);
   ctx.fill();
-  ctx.fillStyle = "#fff";
+  ctx.fillStyle = colors.frogEyes;
   ctx.beginPath();
   ctx.arc(x + CELL / 2 - 5, y + CELL / 2 - 6, 3, 0, Math.PI * 2);
   ctx.arc(x + CELL / 2 + 5, y + CELL / 2 - 6, 3, 0, Math.PI * 2);
   ctx.fill();
-  ctx.fillStyle = "#000";
+  ctx.fillStyle = colors.frogPupils;
   ctx.beginPath();
   ctx.arc(x + CELL / 2 - 5, y + CELL / 2 - 6, 1.5, 0, Math.PI * 2);
   ctx.arc(x + CELL / 2 + 5, y + CELL / 2 - 6, 1.5, 0, Math.PI * 2);
   ctx.fill();
   if (jumping) {
-    ctx.strokeStyle = "#4ee358";
+    ctx.strokeStyle = colors.frogBody;
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(x + 6, y + CELL - 6);
@@ -215,6 +326,21 @@ export default function FroggerGame(props: FroggerGameProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const propsRef = useRef(props);
   propsRef.current = props;
+
+  // Skin state: reads from localStorage on mount, kept in sync via ref for the game loop
+  const [activeSkin, setActiveSkin] = useState<SkinName>(() => {
+    if (typeof window === "undefined") return "clasico";
+    const saved = localStorage.getItem("frogger-skin");
+    return saved === "retro" || saved === "neon" || saved === "clasico" ? saved : "clasico";
+  });
+  const activeSkinRef = useRef<SkinName>(activeSkin);
+  activeSkinRef.current = activeSkin;
+
+  const handleSkinChange = (skin: SkinName) => {
+    localStorage.setItem("frogger-skin", skin);
+    setActiveSkin(skin);
+    activeSkinRef.current = skin;
+  };
 
   useEffect(() => {
     const container = containerRef.current;
@@ -341,6 +467,7 @@ export default function FroggerGame(props: FroggerGameProps) {
       lanes = buildLanes(level);
       resetFrogPosition();
     };
+
     const killFrog = () => {
       if (gameOver) return;
       lives -= 1;
@@ -366,7 +493,7 @@ export default function FroggerGame(props: FroggerGameProps) {
       // Avanzar entidades
       for (const lane of lanes) {
         for (const e of lane.entities) {
-          e.col += (lane.speed * lane.dir * dt) / 16;
+          e.col += (lane.speed * lane.dir * dt) / 16 / CELL;
           if (lane.dir === 1 && e.col >= COLS) e.col = -e.width;
           else if (lane.dir === -1 && e.col + e.width <= 0) e.col = COLS;
         }
@@ -462,28 +589,31 @@ export default function FroggerGame(props: FroggerGameProps) {
     };
 
     const draw = () => {
+      // Leer skin activa desde el ref (no genera re-render ni reinicia el loop)
+      const colors = SKIN_COLORS[activeSkinRef.current];
+
       // Fondo por zonas
-      ctx.fillStyle = "#0a1a05";
+      ctx.fillStyle = colors.bgGoals;
       ctx.fillRect(0, ROW_GOALS * CELL, CANVAS_W, CELL);
-      ctx.fillStyle = "#062240";
+      ctx.fillStyle = colors.bgRiver;
       ctx.fillRect(0, ROW_RIVER_TOP * CELL, CANVAS_W, (ROW_RIVER_BOT - ROW_RIVER_TOP + 1) * CELL);
-      ctx.fillStyle = "#0a3a20";
+      ctx.fillStyle = colors.bgSafe;
       ctx.fillRect(0, ROW_SAFE_MID * CELL, CANVAS_W, CELL);
-      ctx.fillStyle = "#111";
+      ctx.fillStyle = colors.bgRoad;
       ctx.fillRect(0, ROW_ROAD_TOP * CELL, CANVAS_W, (ROW_ROAD_BOT - ROW_ROAD_TOP + 1) * CELL);
-      ctx.fillStyle = "#0a3a20";
+      ctx.fillStyle = colors.bgSafe;
       ctx.fillRect(0, ROW_START * CELL, CANVAS_W, CELL);
 
       // Bocas destino
       for (let i = 0; i < 5; i++) {
         const cx = GOAL_COLS[i];
-        ctx.fillStyle = "#052515";
-        ctx.strokeStyle = "#c9a933";
+        ctx.fillStyle = colors.bgGoals;
+        ctx.strokeStyle = colors.goalFrame;
         ctx.lineWidth = 2;
         ctx.fillRect(cx * CELL, ROW_GOALS * CELL + 6, CELL * 2, CELL - 12);
         ctx.strokeRect(cx * CELL, ROW_GOALS * CELL + 6, CELL * 2, CELL - 12);
         if (goalsFilled[i]) {
-          ctx.fillStyle = "#2a6a35";
+          ctx.fillStyle = colors.goalFilled;
           ctx.beginPath();
           ctx.ellipse(cx * CELL + CELL, ROW_GOALS * CELL + CELL / 2, 14, 12, 0, 0, Math.PI * 2);
           ctx.fill();
@@ -495,7 +625,7 @@ export default function FroggerGame(props: FroggerGameProps) {
         for (const e of lane.entities) {
           const x = e.col * CELL;
           const y = lane.row * CELL;
-          drawEntity(ctx, e, x, y);
+          drawEntity(ctx, e, x, y, colors);
         }
       }
 
@@ -507,10 +637,10 @@ export default function FroggerGame(props: FroggerGameProps) {
         fx = frog.col * CELL + (frog.targetCol - frog.col) * CELL * t;
         fy = frog.row * CELL + (frog.targetRow - frog.row) * CELL * t;
       }
-      drawFrog(ctx, fx, fy, frog.animating);
+      drawFrog(ctx, fx, fy, frog.animating, colors);
 
       // HUD interno
-      ctx.fillStyle = "#fff";
+      ctx.fillStyle = colors.hudText;
       ctx.font = "bold 16px monospace";
       ctx.textAlign = "left";
       ctx.fillText(`SCORE ${score}`, 8, 22);
@@ -519,7 +649,7 @@ export default function FroggerGame(props: FroggerGameProps) {
       for (let i = 0; i < lives; i++) {
         const cxx = CANVAS_W - 12 - i * 20;
         ctx.beginPath();
-        ctx.fillStyle = "#4ee358";
+        ctx.fillStyle = colors.frogBody;
         ctx.arc(cxx, 14, 7, 0, Math.PI * 2);
         ctx.fill();
       }
@@ -527,7 +657,8 @@ export default function FroggerGame(props: FroggerGameProps) {
       // Barra de tiempo (banda superior de 4 px)
       const timePct = Math.max(0, roundTimer / roundTimeForLevel(level));
       const barW = CANVAS_W * timePct;
-      ctx.fillStyle = timePct > 0.5 ? "#4ee358" : timePct > 0.25 ? "#e8c94a" : "#e34e58";
+      ctx.fillStyle =
+        timePct > 0.5 ? colors.timerOk : timePct > 0.25 ? colors.timerMed : colors.timerLow;
       ctx.fillRect(0, 0, barW, 4);
     };
 
@@ -555,8 +686,55 @@ export default function FroggerGame(props: FroggerGameProps) {
         flexDirection: "column",
         width: "100%",
         height: "100%",
+        gap: "10px",
       }}
     >
+      {/* Selector de skin */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
+          padding: "6px 12px",
+          background: "rgba(255,255,255,0.04)",
+          border: "1px solid rgba(0,245,255,0.18)",
+          flexShrink: 0,
+        }}
+      >
+        <span
+          style={{
+            fontFamily: "var(--pixel, monospace)",
+            fontSize: "9px",
+            letterSpacing: "0.16em",
+            color: "var(--ink-faint, #4a4f70)",
+          }}
+        >
+          SKIN
+        </span>
+        <div style={{ display: "flex", gap: "6px" }}>
+          {SKIN_BTNS.map(({ key, label }) => (
+            <button
+              key={key}
+              data-skin={key}
+              onClick={() => handleSkinChange(key)}
+              style={{
+                padding: "4px 10px",
+                fontFamily: "var(--pixel, monospace)",
+                fontSize: "8px",
+                letterSpacing: "0.12em",
+                background: activeSkin === key ? "rgba(0,245,255,0.15)" : "transparent",
+                border: `1px solid ${activeSkin === key ? "rgba(0,245,255,0.7)" : "rgba(0,245,255,0.3)"}`,
+                color: activeSkin === key ? "#e0e8ff" : "var(--ink-dim, #8a8fb5)",
+                cursor: "pointer",
+              }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Canvas del juego */}
       <div ref={containerRef} style={{ position: "relative", flex: 1, overflow: "hidden" }}>
         <canvas ref={canvasRef} width={CANVAS_W} height={CANVAS_H} />
       </div>

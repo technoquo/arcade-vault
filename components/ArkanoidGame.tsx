@@ -7,7 +7,6 @@ export default function ArkanoidGame({ onGameOver }: { onGameOver?: (score: numb
   const containerRef = useRef<HTMLDivElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [spritesheetReady, setSpritesheetReady] = useState(false);
-  const [gameReady, setGameReady] = useState(false);
   const [activeSkin, setActiveSkin] = useState<string>("clasico");
 
   useEffect(() => {
@@ -43,17 +42,19 @@ export default function ArkanoidGame({ onGameOver }: { onGameOver?: (score: numb
 
   useEffect(() => {
     if (onGameOver) {
-      (window as any).onGameOver = onGameOver;
+      (window as unknown as Record<string, unknown>).onGameOver = onGameOver;
     }
     return () => {
-      delete (window as any).onGameOver;
+      delete (window as unknown as Record<string, unknown>).onGameOver;
     };
   }, [onGameOver]);
 
   function handleSkinChange(skin: string) {
     setActiveSkin(skin);
-    if (typeof (window as any).arkanoidApplySkin === "function") {
-      (window as any).arkanoidApplySkin(skin);
+    const applySkin = (window as unknown as { arkanoidApplySkin?: (skin: string) => void })
+      .arkanoidApplySkin;
+    if (typeof applySkin === "function") {
+      applySkin(skin);
     } else {
       // Si el juego no cargó todavía, guardamos en localStorage de todas formas
       localStorage.setItem("arkanoid-skin", skin);
@@ -143,13 +144,7 @@ export default function ArkanoidGame({ onGameOver }: { onGameOver?: (score: numb
           strategy="afterInteractive"
           onReady={() => setSpritesheetReady(true)}
         />
-        {spritesheetReady && (
-          <Script
-            src="/arkanoid/game.js"
-            strategy="afterInteractive"
-            onReady={() => setGameReady(true)}
-          />
-        )}
+        {spritesheetReady && <Script src="/arkanoid/game.js" strategy="afterInteractive" />}
       </div>
     </div>
   );

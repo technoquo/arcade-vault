@@ -2,14 +2,18 @@
 
 import { use, useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import { GAMES } from "@/lib/data";
-import { useUser } from "@/context/UserContext";
 import AsteroidsGame from "@/components/AsteroidsGame";
 import TetrisGame from "@/components/TetrisGame";
 import ArkanoidGame from "@/components/ArkanoidGame";
 import SnakeGame from "@/components/SnakeGame";
 import TouchControls from "@/components/TouchControls";
 import { createClient } from "@/lib/supabase/client";
+
+const FroggerGame = dynamic(() => import("@/components/games/FroggerGame"), {
+  ssr: false,
+});
 
 interface LeaderboardEntry {
   rank: number;
@@ -30,7 +34,6 @@ export default function JugarPage({
 }) {
   const { id } = use(params);
   const router = useRouter();
-  const { user, saveScore } = useUser();
 
   const game = GAMES.find((g) => g.id === id);
 
@@ -62,12 +65,15 @@ export default function JugarPage({
   useEffect(() => { fetchLeaderboard(); }, [fetchLeaderboard]);
 
   useEffect(() => {
+    const stored =
+      typeof window !== "undefined" ? localStorage.getItem("av_player_name") : null;
+    if (stored) setName(stored.toUpperCase().slice(0, 10));
     const supabase = createClient();
     supabase.auth.getSession().then(({ data }) => {
       const email = data.session?.user?.email;
       const uid = data.session?.user?.id ?? null;
       setUserId(uid);
-      if (email) setName(email.split("@")[0].toUpperCase().slice(0, 10));
+      if (email && !stored) setName(email.split("@")[0].toUpperCase().slice(0, 10));
     });
   }, []);
 
@@ -77,16 +83,18 @@ export default function JugarPage({
 
   useEffect(() => {
     if (over || paused) return;
+    if (id === "frogger") return;
     const t = setInterval(
       () => setScore((s) => s + Math.floor(10 + Math.random() * 90)),
       220
     );
     return () => clearInterval(t);
-  }, [over, paused]);
+  }, [over, paused, id]);
 
   useEffect(() => {
+    if (id === "frogger") return;
     if (score > 0 && score % 2500 < 100) setLevel((l) => l + 1);
-  }, [score]);
+  }, [score, id]);
 
   const endGame = () => setOver(true);
   const restart = () => {
@@ -121,6 +129,9 @@ export default function JugarPage({
         return;
       }
       setSaved(true);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("av_player_name", name.trim());
+      }
       await fetchLeaderboard();
     } catch {
       setSaveError("Error de red. Intenta de nuevo.");
@@ -172,6 +183,15 @@ export default function JugarPage({
               <ArkanoidGame onGameOver={(s) => { setScore(s); setOver(true); }} />
             ) : id === "snake" ? (
               <SnakeGame onGameOver={(s) => { setScore(s); setOver(true); }} resetKey={restartKey} />
+            ) : id === "frogger" ? (
+              <FroggerGame
+                key={restartKey}
+                paused={paused}
+                onScoreChange={setScore}
+                onLivesChange={setLives}
+                onLevelChange={setLevel}
+                onGameOver={(s) => { setScore(s); setOver(true); }}
+              />
             ) : (
               <div className="game-arena">
                 <div className="grid-floor" />

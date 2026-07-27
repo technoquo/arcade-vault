@@ -42,7 +42,8 @@
       "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\User\\\\Documents\\\\ClaudeCode\\\\05-arcade-vault\" -Force)",
       "Bash(Select-Object Name, PSIsContainer)",
       "Bash(Format-Table)",
-      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\User\\\\Documents\\\\ClaudeCode\\\\05-arcade-vault\" -Recurse -Directory -Name)"
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\User\\\\Documents\\\\ClaudeCode\\\\05-arcade-vault\" -Recurse -Directory -Name)",
+      "Bash(npm run *)"
     ]
   },
   "enableAllProjectMcpServers": true,

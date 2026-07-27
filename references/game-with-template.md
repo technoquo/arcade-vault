@@ -16,12 +16,14 @@ Convenciones:
 | `rocas`    | `AsteroidsGame` | clasico, retro, neon       | —       | Implementado |
 | `arkanoid` | `ArkanoidGame`  | clasico, retro, neon       | —       | Implementado |
 | `snake`    | `SnakeGame`     | clasico, retro, neon       | —       | Implementado |
+| `frogger`  | `FroggerGame`   | clasico, retro, neon       | —       | Implementado |
 
 ## Implementados (3 skins estándar completas)
 
 - [x] `rocas` (Asteroids) — tiene `clasico`, `retro`, `neon` · Auditado 2026-07-26
 - [x] `arkanoid` — tiene `clasico`, `retro`, `neon` · Nota: bloques usan spritesheet PNG original; tint vía canvas auxiliar con `source-atop` sobre paddle y pelota · Auditado 2026-07-26
 - [x] `snake` — tiene `clasico`, `retro`, `neon` · localStorage key `snake-skin`, fallback `clasico` · Auditado 2026-07-26
+- [x] `frogger` — tiene `clasico`, `retro`, `neon` · localStorage key `frogger-skin`, fallback `clasico` · Canvas puro (sin `public/frogger/game.js`), colores en `components/games/FroggerGame.tsx` · Auditado 2026-07-27
 
 ## Parcialmente implementados
 
